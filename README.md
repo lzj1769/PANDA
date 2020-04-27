@@ -1,7 +1,5 @@
 # PANDA
 
-## April-27
-
-| Model | Validation | LB |
-|-------|------------|----|
-| EfficientNet-B0
+| Date | Model | Validation | LB |
+|------|-------|------------|----|
+| April-27 | EfficientNet-B0
