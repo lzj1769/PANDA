@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import random
+from sklearn.metrics import cohen_kappa_score
 from torch.utils.data import RandomSampler, SequentialSampler, DataLoader
 import torch
 from albumentations import Compose, Normalize, HorizontalFlip, VerticalFlip
@@ -9,6 +10,10 @@ from albumentations.pytorch import ToTensorV2
 
 import configure
 import datasets
+
+
+def quadratic_weighted_kappa(y_hat, y):
+    return cohen_kappa_score(y_hat, y, weights='quadratic')
 
 
 def seed_torch(seed):
@@ -45,7 +50,7 @@ def get_transforms(*, data):
         ])
 
 
-def get_dataloader(data, fold, batch_size, num_workers):
+def get_dataloader(data, fold, batch_size, num_workers, image_width, image_height):
     assert data in ('train', 'valid')
 
     dataloader = ""
@@ -56,6 +61,8 @@ def get_dataloader(data, fold, batch_size, num_workers):
         train_dataset = datasets.TrainDataset(
             df=df_train,
             data_dir=configure.TRAIN_IMAGE_PATH,
+            image_width=image_width,
+            image_height=image_height,
             transform=get_transforms(data="train"))
 
         train_sampler = RandomSampler(train_dataset)
@@ -71,6 +78,8 @@ def get_dataloader(data, fold, batch_size, num_workers):
         valid_dataset = datasets.TrainDataset(
             df=df_valid,
             data_dir=configure.TRAIN_IMAGE_PATH,
+            image_width=image_width,
+            image_height=image_height,
             transform=get_transforms(data="valid"))
 
         valid_sampler = SequentialSampler(valid_dataset)
