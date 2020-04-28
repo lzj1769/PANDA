@@ -11,7 +11,7 @@ import torch.optim
 import torch.utils.data
 from torch.utils.tensorboard import SummaryWriter
 
-from model import EfficientNet
+from model import PandaEfficientNet
 import configure
 import utils
 
@@ -132,11 +132,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     args.device = device
 
-    if args.pretrained:
-        model = EfficientNet.from_pretrained(model_name=args.arch, num_classes=1)
-    else:
-        model = EfficientNet.from_name(model_name=args.arch)
-
+    model = PandaEfficientNet(arch=args.arch)
     model.to(args.device)
 
     train_loader = utils.get_dataloader(data="train",
@@ -174,7 +170,7 @@ def main():
     model_path = os.path.join(configure.MODEL_PATH,
                               f'{args.arch}_fold_{args.fold}_image_{args.image_width}_{args.image_height}.pth')
 
-    print(f'training stared')
+    print(f'training started: {current_time}')
     for epoch in range(args.epochs):
         train_loss, train_score = train(
             train_loader=train_loader,
@@ -204,8 +200,11 @@ def main():
         if valid_score > best_score:
             best_score = valid_score
             torch.save(model.state_dict(), model_path)
-            print(f"epoch: {epoch}, best score: {valid_score}")
-    print(f'training finished')
+            current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+            print(f"epoch: {epoch}, best score: {valid_score}, date: {current_time}")
+
+    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+    print(f'training finished: {current_time}')
 
 
 if __name__ == "__main__":

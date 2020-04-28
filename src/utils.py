@@ -5,7 +5,11 @@ import random
 from sklearn.metrics import cohen_kappa_score
 from torch.utils.data import RandomSampler, SequentialSampler, DataLoader
 import torch
-from albumentations import Compose, Normalize, HorizontalFlip, VerticalFlip
+from albumentations import (
+    OneOf, IAAAdditiveGaussianNoise, GaussNoise,
+    Compose, Normalize, HorizontalFlip,
+    VerticalFlip, ShiftScaleRotate, RandomBrightnessContrast,
+    RandomRotate90)
 from albumentations.pytorch import ToTensorV2
 
 import configure
@@ -33,6 +37,13 @@ def get_transforms(*, data):
         return Compose([
             HorizontalFlip(p=0.5),
             VerticalFlip(p=0.5),
+            RandomRotate90(p=0.5),
+            OneOf([
+                IAAAdditiveGaussianNoise(),
+                GaussNoise(),
+            ], p=0.2),
+            RandomBrightnessContrast(p=0.5),
+            ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
             Normalize(
                 mean=[0.485, 0.456, 0.406],
                 std=[0.229, 0.224, 0.225],
