@@ -203,7 +203,7 @@ def main():
         if valid_score > best_score:
             best_score = valid_score
             torch.save(model.state_dict(), model_path)
-            print(f"best score: {valid_score}")
+            print(f"epoch: {epoch}, best score: {valid_score}")
 
 
 if __name__ == "__main__":
