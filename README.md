@@ -1,6 +1,6 @@
 # PANDA
 
-|Date|Model| Image Size |Augmentation| Validation | LB |
+|Date|Model| Augmentation |Image Size| Validation | LB |
 |----|-----|------------|------------|------------|----|
 |April-27|EfficientNet-B0|HorizontalFlip,VerticalFlip|384 * 384|0.7287| 0.64
 |April-28|EfficientNet-B1|HorizontalFlip,VerticalFlip|384 * 384|0.7588| 0.62
