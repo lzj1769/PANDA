@@ -174,6 +174,7 @@ def main():
     model_path = os.path.join(configure.MODEL_PATH,
                               f'{args.arch}_fold_{args.fold}_image_{args.image_width}_{args.image_height}.pth')
 
+    print(f'training stared')
     for epoch in range(args.epochs):
         train_loss, train_score = train(
             train_loader=train_loader,
@@ -204,6 +205,7 @@ def main():
             best_score = valid_score
             torch.save(model.state_dict(), model_path)
             print(f"epoch: {epoch}, best score: {valid_score}")
+    print(f'training finished')
 
 
 if __name__ == "__main__":
