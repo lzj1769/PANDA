@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 import utils
 
 
-class TrainDataset(Dataset):
+class PandaDataset(Dataset):
     def __init__(self, df, data_dir, transform=None,
                  image_width=256, image_height=256):
         self.df = df

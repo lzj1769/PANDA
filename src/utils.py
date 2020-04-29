@@ -69,7 +69,7 @@ def get_dataloader(data, fold, batch_size, num_workers, image_width, image_heigh
         df_train_path = os.path.join(configure.SPLIT_FOLDER, "fold_{}_train.csv".format(fold))
         df_train = pd.read_csv(df_train_path)
 
-        train_dataset = datasets.TrainDataset(
+        train_dataset = datasets.PandaDataset(
             df=df_train,
             data_dir=configure.TRAIN_IMAGE_PATH,
             image_width=image_width,
@@ -86,7 +86,7 @@ def get_dataloader(data, fold, batch_size, num_workers, image_width, image_heigh
         df_valid_path = os.path.join(configure.SPLIT_FOLDER, "fold_{}_valid.csv".format(fold))
         df_valid = pd.read_csv(df_valid_path)
 
-        valid_dataset = datasets.TrainDataset(
+        valid_dataset = datasets.PandaDataset(
             df=df_valid,
             data_dir=configure.TRAIN_IMAGE_PATH,
             image_width=image_width,
