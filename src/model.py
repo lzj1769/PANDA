@@ -3,14 +3,15 @@ from efficientnet import EfficientNet
 
 
 class PandaEfficientNet(nn.Module):
-    def __init__(self, arch):
+    def __init__(self, arch, num_classes=1):
         super().__init__()
 
         self.base = EfficientNet.from_pretrained(model_name=arch)
         self.avg_pooling = nn.AdaptiveAvgPool2d(1)
         self.dropout = nn.Dropout(0.5)
         self.in_features = self.base._fc.in_features
-        self.fc1 = nn.Linear(self.in_features, 1, bias=False)
+        self.fc1 = nn.Linear(self.in_features, num_classes, bias=False)
+        self.fc2 = nn.Linear(self.in_features, num_classes, bias=False)
 
     def forward(self, inputs):
         bs = inputs.size(0)
@@ -21,6 +22,7 @@ class PandaEfficientNet(nn.Module):
         x = self.avg_pooling(x)
         x = x.view(bs, -1)
         x = self.dropout(x)
-        x = self.fc1(x)
+        x1 = self.fc1(x)
+        x2 = self.fc2(x)
 
-        return x
+        return x1, x2

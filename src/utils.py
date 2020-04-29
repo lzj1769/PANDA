@@ -15,6 +15,17 @@ from albumentations.pytorch import ToTensorV2
 import configure
 import datasets
 
+Gleason_ISUP = {'0+0': 0,
+                '3+3': 1,
+                '3+4': 2,
+                '4+3': 3,
+                '4+4': 4,
+                '3+5': 4,
+                '5+3': 4,
+                '4+5': 5,
+                '5+4': 5,
+                '5+5': 5}
+
 
 def quadratic_weighted_kappa(y_hat, y):
     return cohen_kappa_score(y_hat, y, weights='quadratic')
@@ -111,3 +122,31 @@ def crop_white(image: np.ndarray) -> np.ndarray:
     if len(xs) == 0 or len(ys) == 0:
         return image
     return image[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+
+
+def pred_to_gleason(pred):
+    thres = [2.5, 3.5, 4.5]  # 0, 3, 4, 5
+    pred[pred < thres[0]] = 0
+    pred[(pred >= thres[0]) & (pred < thres[1])] = 3
+    pred[(pred >= thres[1]) & (pred < thres[2])] = 4
+    pred[pred >= thres[2]] = 5
+
+    return map(int, pred)
+
+
+def gleason_to_isup(gleason_score_1, gleason_score_2):
+    gleason_score = list()
+    for (item1, item2) in zip(gleason_score_1, gleason_score_2):
+        gleason_score.append(str(item1) + "+" + str(item2))
+
+    isup_grade = []
+    for gleason in gleason_score:
+        if gleason not in Gleason_ISUP:
+            isup_grade.append(0)
+        else:
+            isup_grade.append(Gleason_ISUP[gleason])
+
+    return isup_grade
+
+
+

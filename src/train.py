@@ -5,10 +5,6 @@ import numpy as np
 import warnings
 
 import torch
-import torch.nn as nn
-import torch.nn.parallel
-import torch.optim
-import torch.utils.data
 from torch.utils.tensorboard import SummaryWriter
 
 from model import PandaEfficientNet
@@ -28,7 +24,7 @@ def parse_args():
     parser.add_argument('--pretrained', dest='pretrained', action='store_true',
                         help='use pre-trained model')
     parser.add_argument("--fold", type=int, default=0)
-    parser.add_argument("--num_workers", default=4, type=int,
+    parser.add_argument("--num_workers", default=24, type=int,
                         help="How many sub-processes to use for data.")
     parser.add_argument("--batch_size", default=16, type=int,
                         help="Batch size per GPU/CPU for training.")
@@ -40,8 +36,9 @@ def parse_args():
                         help="Image height.")
     parser.add_argument("--weight_decay", default=1e-04, type=float,
                         help="Weight decay if we apply some.")
-    parser.add_argument("--adam_epsilon", default=1e-8, type=float,
-                        help="Epsilon for Adam optimizer.")
+    parser.add_argument("--log",
+                        action="store_true",
+                        help='write training history')
     parser.add_argument("--epochs", default=200, type=int,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
@@ -54,35 +51,36 @@ def train(train_loader, model, criterion, optimizer, args):
 
     train_loss = 0.0
     preds, train_labels = [], []
-    for i, (images, target) in enumerate(train_loader):
+    for i, (images, target1, target2) in enumerate(train_loader):
+        # get ISUP grade
+        target_isup = utils.gleason_to_isup(target1.tolist(), target2.tolist())
+
         images = images.to(args.device)
-        target = target.to(args.device)
+        target1 = target1.to(args.device)
+        target2 = target2.to(args.device)
 
         # compute output
-        output = model(images)
-
-        # loss = criterion(output, target)
-        loss = criterion(output.view(-1), target.float())
+        output1, output2 = model(images)
+        loss1 = criterion(output1.view(-1), target1.float())
+        loss2 = criterion(output2.view(-1), target2.float())
+        loss = loss1 + loss2
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        thrs = [0.5, 1.5, 2.5, 3.5, 4.5]
-        output[output < thrs[0]] = 0
-        output[(output >= thrs[0]) & (output < thrs[1])] = 1
-        output[(output >= thrs[1]) & (output < thrs[2])] = 2
-        output[(output >= thrs[2]) & (output < thrs[3])] = 3
-        output[(output >= thrs[3]) & (output < thrs[4])] = 4
-        output[output >= thrs[4]] = 5
+        output1 = utils.pred_to_gleason(output1.detach().cpu().numpy())
+        output2 = utils.pred_to_gleason(output2.detach().cpu().numpy())
+        pred_isup = utils.gleason_to_isup(output1, output2)
 
-        preds.append(output.detach().cpu().numpy())
-        train_labels.append(target.detach().cpu().numpy())
+        preds.append(pred_isup)
+        train_labels.append(target_isup)
 
         train_loss += loss.item() / len(train_loader)
 
     preds = np.concatenate(preds)
     train_labels = np.concatenate(train_labels)
+
     score = utils.quadratic_weighted_kappa(train_labels, preds)
 
     return train_loss, score
@@ -94,29 +92,30 @@ def valid(valid_loader, model, criterion, args):
     with torch.no_grad():
         valid_loss = 0.0
         preds, valid_labels = [], []
-        for i, (images, target) in enumerate(valid_loader):
+        for i, (images, target1, target2) in enumerate(valid_loader):
+            # get ISUP grade
+            target_isup = utils.gleason_to_isup(target1.tolist(), target2.tolist())
+
             images = images.to(args.device)
-            target = target.to(args.device)
+            target1 = target1.to(args.device)
+            target2 = target2.to(args.device)
 
             # compute output
-            output = model(images)
-            loss = criterion(output.view(-1), target.float())
+            output1, output2 = model(images)
+            loss = criterion(output1.view(-1), target1.float()) + criterion(output2.view(-1), target2.float())
 
-            thrs = [0.5, 1.5, 2.5, 3.5, 4.5]
-            output[output < thrs[0]] = 0
-            output[(output >= thrs[0]) & (output < thrs[1])] = 1
-            output[(output >= thrs[1]) & (output < thrs[2])] = 2
-            output[(output >= thrs[2]) & (output < thrs[3])] = 3
-            output[(output >= thrs[3]) & (output < thrs[4])] = 4
-            output[output >= thrs[4]] = 5
+            output1 = utils.pred_to_gleason(output1.detach().cpu().numpy())
+            output2 = utils.pred_to_gleason(output2.detach().cpu().numpy())
+            pred_isup = utils.gleason_to_isup(output1, output2)
 
-            preds.append(output.detach().cpu().numpy())
-            valid_labels.append(target.detach().cpu().numpy())
+            preds.append(pred_isup)
+            valid_labels.append(target_isup)
 
             valid_loss += loss.item() / len(valid_loader)
 
         preds = np.concatenate(preds)
         valid_labels = np.concatenate(valid_labels)
+
         score = utils.quadratic_weighted_kappa(valid_labels, preds)
 
         return valid_loss, score
@@ -150,8 +149,7 @@ def main():
                                         image_height=args.image_height)
 
     # define loss function (criterion) and optimizer
-    criterion = nn.SmoothL1Loss()
-
+    criterion = torch.nn.SmoothL1Loss()
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
@@ -165,7 +163,9 @@ def main():
     log_dir = os.path.join(configure.TRAINING_LOG_PATH,
                            log_prefix)
 
-    tb_writer = SummaryWriter(log_dir=log_dir)
+    if args.log:
+        tb_writer = SummaryWriter(log_dir=log_dir)
+
     best_score = 0.0
     model_path = os.path.join(configure.MODEL_PATH,
                               f'{args.arch}_fold_{args.fold}_image_{args.image_width}_{args.image_height}.pth')
@@ -188,14 +188,13 @@ def main():
         )
 
         scheduler.step()
-
         learning_rate = scheduler.get_lr()[0]
-
-        tb_writer.add_scalar("learning_rate", learning_rate, epoch)
-        tb_writer.add_scalar("train_loss", train_loss, epoch)
-        tb_writer.add_scalar("train_qwk", train_score, epoch)
-        tb_writer.add_scalar("valid_loss", valid_loss, epoch)
-        tb_writer.add_scalar("valid_score", valid_score, epoch)
+        if args.log:
+            tb_writer.add_scalar("learning_rate", learning_rate, epoch)
+            tb_writer.add_scalar("train_loss", train_loss, epoch)
+            tb_writer.add_scalar("train_qwk", train_score, epoch)
+            tb_writer.add_scalar("valid_loss", valid_loss, epoch)
+            tb_writer.add_scalar("valid_score", valid_score, epoch)
 
         if valid_score > best_score:
             best_score = valid_score

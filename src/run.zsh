@@ -12,4 +12,5 @@ python train.py \
 --pretrained \
 --epochs 200 \
 --batch_size 16 \
---num_workers 24
+--num_workers 24 \
+--log
