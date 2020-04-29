@@ -1,3 +1,8 @@
 epoch: 53, best score: 0.7339877863086183
 epoch: 60, best score: 0.7365001993231313
 epoch: 61, best score: 0.7378089016813407
+epoch: 112, best score: 0.7380269553797094
+epoch: 113, best score: 0.741188292110651
+epoch: 122, best score: 0.7446462595799831
+epoch: 132, best score: 0.7455826918909036
+epoch: 188, best score: 0.7468518234048083
