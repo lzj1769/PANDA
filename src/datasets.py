@@ -30,9 +30,7 @@ class PandaDataset(Dataset):
             augmented = self.transform(image=image)
             image = augmented['image']
 
-        # label = self.df['isup_grade'].values[idx]
-        label1 = self.df['gleason_score_1'].values[idx]
-        label2 = self.df['gleason_score_2'].values[idx]
+        label = self.df['isup_grade'].values[idx]
 
-        return image, label1, label2
+        return image, label
 

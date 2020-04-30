@@ -9,3 +9,6 @@
 |April-28-16:45:22|EfficientNet-B4|HorizontalFlip,VerticalFlip|384 * 384|16|0.7468| 0.63
 |April-28-16:45:22|EfficientNet-B5|HorizontalFlip,VerticalFlip|384 * 384|16|0.7475| 0.63
 |April-29-10:39:11|EfficientNet-B2|crop_white, <br>HorizontalFlip,VerticalFlip,<br>RandomRotate90,<br>IAAAdditiveGaussianNoise,<br>GaussNoise,<br>RandomBrightnessContrast,<br>ShiftScaleRotate|512 * 512|16|0.8088|0.70
+|April-29-10:39:11|EfficientNet-B3|same as above|512 * 512|16||
+|April-29-10:39:11|EfficientNet-B4|same as above|512 * 512|12||
+|April-29-10:39:11|EfficientNet-B5|same as above|512 * 512|8||

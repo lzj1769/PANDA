@@ -6,6 +6,8 @@ import warnings
 
 import torch
 from torch.utils.tensorboard import SummaryWriter
+import torchvision.transforms.functional as F
+
 
 from model import PandaEfficientNet
 import configure
@@ -30,9 +32,9 @@ def parse_args():
                         help="Batch size per GPU/CPU for training.")
     parser.add_argument("--learning_rate", default=1e-4, type=float,
                         help="The initial learning rate for Adam.")
-    parser.add_argument("--image_width", default=384, type=int,
+    parser.add_argument("--image_width", default=512, type=int,
                         help="Image width.")
-    parser.add_argument("--image_height", default=384, type=int,
+    parser.add_argument("--image_height", default=512, type=int,
                         help="Image height.")
     parser.add_argument("--weight_decay", default=1e-04, type=float,
                         help="Weight decay if we apply some.")
@@ -51,36 +53,27 @@ def train(train_loader, model, criterion, optimizer, args):
 
     train_loss = 0.0
     preds, train_labels = [], []
-    for i, (images, target1, target2) in enumerate(train_loader):
-        # get ISUP grade
-        target_isup = utils.gleason_to_isup(target1.tolist(), target2.tolist())
-
+    for i, (images, target) in enumerate(train_loader):
         images = images.to(args.device)
-        target1 = target1.to(args.device)
-        target2 = target2.to(args.device)
+        target = target.to(args.device)
 
         # compute output
-        output1, output2 = model(images)
-        loss1 = criterion(output1.view(-1), target1.float())
-        loss2 = criterion(output2.view(-1), target2.float())
-        loss = loss1 + loss2
+        output = model(images)
+        loss = criterion(output.view(-1), target.float())
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        output1 = utils.pred_to_gleason(output1.detach().cpu().numpy())
-        output2 = utils.pred_to_gleason(output2.detach().cpu().numpy())
-        pred_isup = utils.gleason_to_isup(output1, output2)
+        pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
 
         preds.append(pred_isup)
-        train_labels.append(target_isup)
+        train_labels.append(target.detach().cpu().numpy())
 
         train_loss += loss.item() / len(train_loader)
 
     preds = np.concatenate(preds)
     train_labels = np.concatenate(train_labels)
-
     score = utils.quadratic_weighted_kappa(train_labels, preds)
 
     return train_loss, score
@@ -92,24 +85,18 @@ def valid(valid_loader, model, criterion, args):
     with torch.no_grad():
         valid_loss = 0.0
         preds, valid_labels = [], []
-        for i, (images, target1, target2) in enumerate(valid_loader):
-            # get ISUP grade
-            target_isup = utils.gleason_to_isup(target1.tolist(), target2.tolist())
-
+        for i, (images, target) in enumerate(valid_loader):
             images = images.to(args.device)
-            target1 = target1.to(args.device)
-            target2 = target2.to(args.device)
+            target = target.to(args.device)
 
             # compute output
-            output1, output2 = model(images)
-            loss = criterion(output1.view(-1), target1.float()) + criterion(output2.view(-1), target2.float())
+            output = model(images)
+            loss = criterion(output.view(-1), target.float())
 
-            output1 = utils.pred_to_gleason(output1.detach().cpu().numpy())
-            output2 = utils.pred_to_gleason(output2.detach().cpu().numpy())
-            pred_isup = utils.gleason_to_isup(output1, output2)
+            pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
 
             preds.append(pred_isup)
-            valid_labels.append(target_isup)
+            valid_labels.append(target.detach().cpu().numpy())
 
             valid_loss += loss.item() / len(valid_loader)
 

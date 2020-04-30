@@ -7,6 +7,7 @@ from torch.utils.data import RandomSampler, SequentialSampler, DataLoader
 import torch
 from albumentations import (
     OneOf, IAAAdditiveGaussianNoise, GaussNoise,
+    ElasticTransform, Blur, GridDistortion,
     Compose, Normalize, HorizontalFlip, HueSaturationValue,
     VerticalFlip, ShiftScaleRotate, RandomBrightnessContrast,
     RandomRotate90)
@@ -55,7 +56,10 @@ def get_transforms(*, data):
             ], p=0.2),
             HueSaturationValue(p=0.5),
             RandomBrightnessContrast(p=0.5),
-            ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
+            Blur(p=0.5),
+            GridDistortion(p=0.5),
+            ElasticTransform(p=0.5),
+            ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=180, p=0.5),
             Normalize(
                 mean=[0.485, 0.456, 0.406],
                 std=[0.229, 0.224, 0.225],
@@ -125,29 +129,13 @@ def crop_white(image: np.ndarray) -> np.ndarray:
     return image[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
 
 
-def pred_to_gleason(pred):
-    thres = [2.5, 3.5, 4.5]  # 0, 3, 4, 5
-    pred[pred < thres[0]] = 0
-    pred[(pred >= thres[0]) & (pred < thres[1])] = 3
-    pred[(pred >= thres[1]) & (pred < thres[2])] = 4
-    pred[pred >= thres[2]] = 5
+def pred_to_isup(pred):
+    threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
+    pred[pred < threshold[0]] = 0
+    pred[(pred >= threshold[0]) & (pred < threshold[1])] = 1
+    pred[(pred >= threshold[1]) & (pred < threshold[2])] = 2
+    pred[(pred >= threshold[2]) & (pred < threshold[3])] = 3
+    pred[(pred >= threshold[3]) & (pred < threshold[4])] = 4
+    pred[pred >= threshold[4]] = 5
 
-    return map(int, pred)
-
-
-def gleason_to_isup(gleason_score_1, gleason_score_2):
-    gleason_score = list()
-    for (item1, item2) in zip(gleason_score_1, gleason_score_2):
-        gleason_score.append(str(item1) + "+" + str(item2))
-
-    isup_grade = []
-    for gleason in gleason_score:
-        if gleason not in Gleason_ISUP:
-            isup_grade.append(0)
-        else:
-            isup_grade.append(Gleason_ISUP[gleason])
-
-    return isup_grade
-
-
-
+    return pred

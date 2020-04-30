@@ -1,3 +1,0 @@
-epoch: 77, best score: 0.7451884308893678
-epoch: 81, best score: 0.746639272068879
-epoch: 116, best score: 0.7475160124197644
