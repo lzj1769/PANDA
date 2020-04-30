@@ -6,10 +6,9 @@ import warnings
 
 import torch
 from torch.utils.tensorboard import SummaryWriter
-import torchvision.transforms.functional as F
-
 
 from model import PandaEfficientNet
+import datasets
 import configure
 import utils
 
@@ -88,10 +87,13 @@ def valid(valid_loader, model, criterion, args):
         for i, (images, target) in enumerate(valid_loader):
             images = images.to(args.device)
             target = target.to(args.device)
+            batch_size, n_tta, c, h, w = images.size()
+            images = images.view(-1, c, h, w)
 
             # compute output
             output = model(images)
-            loss = criterion(output.view(-1), target.float())
+            output = output.view(batch_size, n_tta, -1).mean(1)
+            loss = criterion(output, target.float())
 
             pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
 
@@ -121,19 +123,19 @@ def main():
     model = PandaEfficientNet(arch=args.arch)
     model.to(args.device)
 
-    train_loader = utils.get_dataloader(data="train",
-                                        fold=args.fold,
-                                        batch_size=args.batch_size,
-                                        num_workers=args.num_workers,
-                                        image_width=args.image_width,
-                                        image_height=args.image_height)
+    train_loader = datasets.get_dataloader(data="train",
+                                           fold=args.fold,
+                                           batch_size=args.batch_size,
+                                           num_workers=args.num_workers,
+                                           image_width=args.image_width,
+                                           image_height=args.image_height)
 
-    valid_loader = utils.get_dataloader(data="valid",
-                                        fold=args.fold,
-                                        batch_size=args.batch_size,
-                                        num_workers=args.num_workers,
-                                        image_width=args.image_width,
-                                        image_height=args.image_height)
+    valid_loader = datasets.get_dataloader(data="valid",
+                                           fold=args.fold,
+                                           batch_size=args.batch_size,
+                                           num_workers=args.num_workers,
+                                           image_width=args.image_width,
+                                           image_height=args.image_height)
 
     # define loss function (criterion) and optimizer
     criterion = torch.nn.SmoothL1Loss()

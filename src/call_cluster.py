@@ -2,7 +2,7 @@ import os
 
 model_list = ['efficientnet-b3', 'efficientnet-b4',
               'efficientnet-b5', 'efficientnet-b6', 'efficientnet-b7']
-model_list = ['efficientnet-b4', 'efficientnet-b5']
+model_list = ['efficientnet-b2']
 fold_list = [0]
 
 batch_size = {'efficientnet-b1': 16,
