@@ -2,7 +2,7 @@ import os
 
 model_list = ['efficientnet-b3', 'efficientnet-b4',
               'efficientnet-b5', 'efficientnet-b6', 'efficientnet-b7']
-model_list = ['efficientnet-b1']
+model_list = ['efficientnet-b3']
 fold_list = [0]
 
 for model in model_list:

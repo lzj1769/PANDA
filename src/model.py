@@ -3,10 +3,14 @@ from efficientnet import EfficientNet
 
 
 class PandaEfficientNet(nn.Module):
-    def __init__(self, arch, num_classes=1):
+    def __init__(self, arch, num_classes=1, pretrained=True):
         super().__init__()
 
-        self.base = EfficientNet.from_pretrained(model_name=arch)
+        if pretrained:
+            self.base = EfficientNet.from_pretrained(model_name=arch)
+        else:
+            self.base = EfficientNet.from_name(model_name=arch)
+
         self.avg_pooling = nn.AdaptiveAvgPool2d(1)
         self.dropout = nn.Dropout(0.5)
         self.in_features = self.base._fc.in_features

@@ -7,7 +7,7 @@ from torch.utils.data import RandomSampler, SequentialSampler, DataLoader
 import torch
 from albumentations import (
     OneOf, IAAAdditiveGaussianNoise, GaussNoise,
-    Compose, Normalize, HorizontalFlip,
+    Compose, Normalize, HorizontalFlip, HueSaturationValue,
     VerticalFlip, ShiftScaleRotate, RandomBrightnessContrast,
     RandomRotate90)
 from albumentations.pytorch import ToTensorV2
@@ -53,6 +53,7 @@ def get_transforms(*, data):
                 IAAAdditiveGaussianNoise(),
                 GaussNoise(),
             ], p=0.2),
+            HueSaturationValue(p=0.5),
             RandomBrightnessContrast(p=0.5),
             ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
             Normalize(
