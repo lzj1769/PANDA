@@ -15,5 +15,5 @@ for model in model_list:
     for fold in fold_list:
         job_name = "{}_fold_{}".format(model, fold)
         command = f"sbatch -J {job_name} -o ./cluster_out/{job_name}.txt -e ./cluster_err/{job_name}.txt \
-        -t 100:00:00 --mem 90G -A rwth0455 --partition=c18g -c 24 --gres=gpu:1 run.zsh"
+        -t 20:00:00 --mem 90G -A rwth0455 --partition=c18g -c 24 --gres=gpu:1 run.zsh"
         os.system(command + " " + model + " " + str(fold) + " " + str(batch_size[model]))

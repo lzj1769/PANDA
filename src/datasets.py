@@ -25,19 +25,19 @@ class PandaDataset(Dataset):
 
     def __getitem__(self, idx):
         file_name = self.df['image_id'].values[idx]
-        file_path = f'{self.data_dir}/{file_name}.tiff'
-        image = skimage.io.MultiImage(file_path)
+        file_path = f'{self.data_dir}/{file_name}.png'
+        image = skimage.io.imread(file_path)
 
         # remove white background
-        image = utils.crop_white(image[-1])
+        # image = utils.crop_white(image[-1])
         image = cv2.resize(image, (self.image_width, self.image_height))
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         label = self.df['isup_grade'].values[idx]
 
         if self.data == "train":
             augmented = self.transform(image=image)
-            image = augmented['image']
+            image = augmented['image'] / 255.0
 
         # do tta
         elif self.data == "valid":
@@ -63,7 +63,8 @@ class PandaDataset(Dataset):
         return image, label
 
 
-def get_dataloader(data, fold, batch_size, num_workers, image_width, image_height):
+def get_dataloader(data, data_dir, fold, batch_size,
+                   num_workers, image_width, image_height):
     assert data in ('train', 'valid')
 
     dataloader = ""
@@ -73,7 +74,7 @@ def get_dataloader(data, fold, batch_size, num_workers, image_width, image_heigh
 
         train_dataset = PandaDataset(
             df=df_train,
-            data_dir=configure.TRAIN_IMAGE_PATH,
+            data_dir=data_dir,
             data="train",
             transform=utils.get_transforms(data="train"),
             image_width=image_width,
@@ -83,14 +84,14 @@ def get_dataloader(data, fold, batch_size, num_workers, image_width, image_heigh
                                 batch_size=batch_size,
                                 num_workers=num_workers,
                                 pin_memory=True,
-                                shuffle=True)
+                                shuffle=False)
     elif data == "valid":
         df_valid_path = os.path.join(configure.SPLIT_FOLDER, "fold_{}_valid.csv".format(fold))
         df_valid = pd.read_csv(df_valid_path)
 
         valid_dataset = PandaDataset(
             df=df_valid,
-            data_dir=configure.TRAIN_IMAGE_PATH,
+            data_dir=data_dir,
             data="valid",
             transform=utils.get_transforms(data="valid"),
             image_width=image_width,
@@ -99,7 +100,7 @@ def get_dataloader(data, fold, batch_size, num_workers, image_width, image_heigh
         dataloader = DataLoader(dataset=valid_dataset,
                                 batch_size=2,
                                 num_workers=num_workers,
-                                pin_memory=True,
+                                pin_memory=False,
                                 shuffle=False)
 
     return dataloader

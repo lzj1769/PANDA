@@ -1,0 +1,26 @@
+Loaded pretrained weights for efficientnet-b3
+training started: Apr30_12-56-09
+epoch: 0, best score: 0.4800461598763658, date: Apr30_12-59-46
+epoch: 1, best score: 0.6170556789148132, date: Apr30_13-03-24
+epoch: 3, best score: 0.6503416442769725, date: Apr30_13-10-37
+epoch: 5, best score: 0.6573194502735871, date: Apr30_13-17-50
+epoch: 7, best score: 0.6629121621945931, date: Apr30_13-25-05
+epoch: 8, best score: 0.672946462765998, date: Apr30_13-28-42
+epoch: 9, best score: 0.689004618535243, date: Apr30_13-32-18
+epoch: 10, best score: 0.7055493052816322, date: Apr30_13-35-54
+epoch: 11, best score: 0.7104228862431331, date: Apr30_13-39-30
+epoch: 14, best score: 0.7232447506651976, date: Apr30_13-50-19
+epoch: 17, best score: 0.7375698747908285, date: Apr30_14-01-08
+epoch: 24, best score: 0.7397051106057596, date: Apr30_14-26-24
+epoch: 26, best score: 0.7411494299035142, date: Apr30_14-33-38
+epoch: 27, best score: 0.7490666754567354, date: Apr30_14-37-14
+epoch: 36, best score: 0.7630269292156072, date: Apr30_15-09-42
+epoch: 46, best score: 0.7655930127275428, date: Apr30_15-45-43
+epoch: 49, best score: 0.7668726863599082, date: Apr30_15-56-30
+epoch: 67, best score: 0.7729386520640884, date: Apr30_17-01-24
+epoch: 71, best score: 0.7774058492249507, date: Apr30_17-15-47
+epoch: 76, best score: 0.7847072467744223, date: Apr30_17-44-42
+epoch: 93, best score: 0.7866388090365187, date: Apr30_18-45-57
+epoch: 103, best score: 0.7879633387903906, date: Apr30_19-22-02
+epoch: 198, best score: 0.7881968922954874, date: May01_01-06-44
+training finished: May01_01-10-21

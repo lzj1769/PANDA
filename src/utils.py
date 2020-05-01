@@ -38,25 +38,22 @@ def get_transforms(*, data):
                 IAAAdditiveGaussianNoise(),
                 GaussNoise(),
             ], p=0.2),
-            HueSaturationValue(p=0.5),
             RandomBrightnessContrast(p=0.5),
-            Blur(p=0.5),
-            GridDistortion(p=0.5),
-            ElasticTransform(p=0.5),
-            ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=180, p=0.5),
-            Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225],
-            ),
+            ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2,
+                             rotate_limit=180, p=0.5),
+            # Normalize(
+            #     mean=[0.485, 0.456, 0.406],
+            #     std=[0.229, 0.224, 0.225],
+            # ),
             ToTensorV2(),
         ])
 
     elif data == 'valid':
         return Compose([
-            Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225],
-            ),
+            # Normalize(
+            #     mean=[0.485, 0.456, 0.406],
+            #     std=[0.229, 0.224, 0.225],
+            # ),
             ToTensorV2(),
         ])
 

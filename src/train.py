@@ -125,6 +125,7 @@ def main():
 
     train_loader = datasets.get_dataloader(data="train",
                                            fold=args.fold,
+                                           data_dir=configure.TISSUE_DETECTION_TRAIN_IMAGE_PATH,
                                            batch_size=args.batch_size,
                                            num_workers=args.num_workers,
                                            image_width=args.image_width,
@@ -132,6 +133,7 @@ def main():
 
     valid_loader = datasets.get_dataloader(data="valid",
                                            fold=args.fold,
+                                           data_dir=configure.TISSUE_DETECTION_TRAIN_IMAGE_PATH,
                                            batch_size=args.batch_size,
                                            num_workers=args.num_workers,
                                            image_width=args.image_width,
