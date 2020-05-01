@@ -87,12 +87,12 @@ def valid(valid_loader, model, criterion, args):
         for i, (images, target) in enumerate(valid_loader):
             images = images.to(args.device)
             target = target.to(args.device)
-            batch_size, n_tta, c, h, w = images.size()
-            images = images.view(-1, c, h, w)
+            # batch_size, n_tta, c, h, w = images.size()
+            # images = images.view(-1, c, h, w)
 
             # compute output
             output = model(images)
-            output = output.view(batch_size, n_tta, -1).mean(1)
+            # output = output.view(batch_size, n_tta, -1).mean(1)
             loss = criterion(output, target.float())
 
             pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
@@ -125,7 +125,7 @@ def main():
 
     train_loader = datasets.get_dataloader(data="train",
                                            fold=args.fold,
-                                           data_dir=configure.TISSUE_DETECTION_TRAIN_IMAGE_PATH,
+                                           data_dir=configure.TRAIN_IMAGE_PATH,
                                            batch_size=args.batch_size,
                                            num_workers=args.num_workers,
                                            image_width=args.image_width,
@@ -133,7 +133,7 @@ def main():
 
     valid_loader = datasets.get_dataloader(data="valid",
                                            fold=args.fold,
-                                           data_dir=configure.TISSUE_DETECTION_TRAIN_IMAGE_PATH,
+                                           data_dir=configure.TRAIN_IMAGE_PATH,
                                            batch_size=args.batch_size,
                                            num_workers=args.num_workers,
                                            image_width=args.image_width,

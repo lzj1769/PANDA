@@ -1,18 +1,23 @@
 import os
 import cv2
 import pandas as pd
+import numpy as np
 import skimage.io
+import openslide
 import torch
 from torch.utils.data import Dataset, DataLoader
 import albumentations.augmentations.functional as F
+import PIL
 
 import configure
 import utils
 
+PIL.Image.MAX_IMAGE_PIXELS = 933120000
+
 
 class PandaDataset(Dataset):
-    def __init__(self, df, data_dir, data=None,
-                 transform=None, image_width=256, image_height=256):
+    def __init__(self, df, data_dir, data=None, transform=None,
+                 image_width=256, image_height=256):
         self.df = df
         self.data_dir = data_dir
         self.data = data
@@ -25,42 +30,19 @@ class PandaDataset(Dataset):
 
     def __getitem__(self, idx):
         file_name = self.df['image_id'].values[idx]
-        file_path = f'{self.data_dir}/{file_name}.png'
-        image = skimage.io.imread(file_path)
+        file_path = f'{self.data_dir}/{file_name}.tiff'
+        image = skimage.io.MultiImage(file_path)[-1]
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        # remove white background
-        # image = utils.crop_white(image[-1])
-        image = cv2.resize(image, (self.image_width, self.image_height))
-        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
+        image = utils.tile(image, tile_size=128, num_tiles=12)
         label = self.df['isup_grade'].values[idx]
 
-        if self.data == "train":
-            augmented = self.transform(image=image)
-            image = augmented['image'] / 255.0
+        aug_image = np.empty(shape=(12, 3, 128, 128), dtype=np.float32)
+        for i in range(image.shape[0]):
+            augmented = self.transform(image=image[i])
+            aug_image[i] = augmented['image'] / 255.0
 
-        # do tta
-        elif self.data == "valid":
-            augmented1 = self.transform(image=image)
-            augmented2 = self.transform(image=F.rot90(image, factor=1))
-            augmented3 = self.transform(image=F.rot90(image, factor=2))
-            augmented4 = self.transform(image=F.rot90(image, factor=3))
-
-            augmented5 = self.transform(image=F.hflip(image))
-            augmented6 = self.transform(image=F.rot90(F.hflip(image), factor=1))
-            augmented7 = self.transform(image=F.rot90(F.hflip(image), factor=2))
-            augmented8 = self.transform(image=F.rot90(F.hflip(image), factor=3))
-
-            image = torch.stack([augmented1['image'],
-                                 augmented2['image'],
-                                 augmented3['image'],
-                                 augmented4['image'],
-                                 augmented5['image'],
-                                 augmented6['image'],
-                                 augmented7['image'],
-                                 augmented8['image']])
-
-        return image, label
+        return aug_image, label
 
 
 def get_dataloader(data, data_dir, fold, batch_size,
@@ -98,7 +80,7 @@ def get_dataloader(data, data_dir, fold, batch_size,
             image_height=image_height)
 
         dataloader = DataLoader(dataset=valid_dataset,
-                                batch_size=2,
+                                batch_size=batch_size // 3,
                                 num_workers=num_workers,
                                 pin_memory=False,
                                 shuffle=False)

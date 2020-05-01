@@ -183,9 +183,15 @@ def detect_and_crop(input_image, output_image=None, sensitivity=3000,
 if __name__ == "__main__":
     df_train = pd.read_csv(configure.TRAIN_DF)
 
-    for image_id in df_train['image_id'].values.tolist():
-        input_image = os.path.join(configure.TRAIN_IMAGE_PATH,
-                                   f"{image_id}.tiff")
-        output_image = os.path.join(configure.TISSUE_DETECTION_TRAIN_IMAGE_PATH,
-                                    f"{image_id}.png")
-        detect_and_crop(input_image, output_image)
+    # for image_id in df_train['image_id'].values.tolist():
+    #     input_image = os.path.join(configure.TRAIN_IMAGE_PATH,
+    #                                f"{image_id}.tiff")
+    #     output_image = os.path.join(configure.TISSUE_DETECTION_TRAIN_IMAGE_PATH,
+    #                                 f"{image_id}.png")
+    #     detect_and_crop(input_image, output_image)
+
+    input_image = os.path.join(configure.TRAIN_IMAGE_PATH,
+                               "0032bfa835ce0f43a92ae0bbab6871cb.tiff")
+    output_image = os.path.join("test.png")
+    detect_and_crop(input_image, output_image, sensitivity=3000,
+                    downsample_rate=16)

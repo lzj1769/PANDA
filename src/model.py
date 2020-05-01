@@ -11,15 +11,23 @@ class PandaEfficientNet(nn.Module):
         else:
             self.base = EfficientNet.from_name(model_name=arch)
 
+        self.in_features = self.base._fc.in_features
+
         self.avg_pooling = nn.AdaptiveAvgPool2d(1)
         self.dropout = nn.Dropout(0.5)
-        self.in_features = self.base._fc.in_features
-        self.fc1 = nn.Linear(self.in_features, num_classes, bias=False)
+        self.fc1 = nn.Linear(self.in_features, num_classes)
 
     def forward(self, inputs):
-        bs = inputs.size(0)
+        bs, num_tiles, c, h, w = inputs.size()
+        inputs = inputs.view(-1, c, h, w)
+
         # Convolution layers
         x = self.base.extract_features(inputs)
+        shape = x.shape
+
+        # concatenate the output for tiles into a single map
+        x = x.view(-1, bs, shape[1], shape[2], shape[3]).permute(0, 2, 1, 3, 4).contiguous() \
+            .view(-1, shape[1], shape[2] * num_tiles, shape[3])  # x: bs x C x N*4 x 4
 
         # Pooling and final linear layer
         x = self.avg_pooling(x)
