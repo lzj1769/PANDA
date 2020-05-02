@@ -29,34 +29,30 @@ def parse_args():
                         help="How many sub-processes to use for data.")
     parser.add_argument("--batch_size", default=16, type=int,
                         help="Batch size per GPU/CPU for training.")
+    parser.add_argument("--tile_size", default=128, type=int)
+    parser.add_argument("--num_tiles", default=12, type=int)
     parser.add_argument("--learning_rate", default=1e-4, type=float,
                         help="The initial learning rate for Adam.")
-    parser.add_argument("--image_width", default=512, type=int,
-                        help="Image width.")
-    parser.add_argument("--image_height", default=512, type=int,
-                        help="Image height.")
     parser.add_argument("--weight_decay", default=1e-04, type=float,
                         help="Weight decay if we apply some.")
     parser.add_argument("--log",
                         action="store_true",
                         help='write training history')
-    parser.add_argument("--epochs", default=200, type=int,
+    parser.add_argument("--epochs", default=100, type=int,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
 
     return parser.parse_args()
 
 
-def train(train_loader, model, criterion, optimizer, args):
+def train(train_loader, model, criterion, optimizer):
     model.train()
 
     train_loss = 0.0
     preds, train_labels = [], []
     for i, (images, target) in enumerate(train_loader):
-        bs = len(target)
-
-        images = images.to(args.device)
-        target = target.to(args.device)
+        images = images.to("cuda")
+        target = target.to("cuda")
 
         # compute output
         output = model(images)
@@ -66,7 +62,7 @@ def train(train_loader, model, criterion, optimizer, args):
         loss.backward()
         optimizer.step()
 
-        pred_isup = output.view(bs, -1).argmax(-1).cpu().numpy()
+        pred_isup = output.view(output.size(0), -1).argmax(-1).cpu().numpy()
 
         # pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
 
@@ -82,7 +78,7 @@ def train(train_loader, model, criterion, optimizer, args):
     return train_loss, score
 
 
-def valid(valid_loader, model, criterion, args):
+def valid(valid_loader, model, criterion):
     model.eval()
 
     with torch.no_grad():
@@ -91,8 +87,8 @@ def valid(valid_loader, model, criterion, args):
         for i, (images, target) in enumerate(valid_loader):
             bs = len(target)
 
-            images = images.to(args.device)
-            target = target.to(args.device)
+            images = images.to("cuda")
+            target = target.to("cuda")
             # batch_size, n_tta, c, h, w = images.size()
             # images = images.view(-1, c, h, w)
 
@@ -124,27 +120,28 @@ def main():
     utils.seed_torch(args.seed)
 
     # Setup CUDA, GPU
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    args.device = device
+    if not torch.cuda.is_available():
+        print("cuda is not available")
+        exit(0)
 
     model = PandaNet(arch=args.arch)
-    model.to(args.device)
+    model.to("cuda")
 
     train_loader = datasets.get_dataloader(data="train",
                                            fold=args.fold,
                                            data_dir=configure.TRAIN_IMAGE_PATH,
                                            batch_size=args.batch_size,
                                            num_workers=args.num_workers,
-                                           image_width=args.image_width,
-                                           image_height=args.image_height)
+                                           tile_size=args.tile_size,
+                                           num_tiles=args.num_tiles)
 
     valid_loader = datasets.get_dataloader(data="valid",
                                            fold=args.fold,
                                            data_dir=configure.TRAIN_IMAGE_PATH,
                                            batch_size=args.batch_size,
                                            num_workers=args.num_workers,
-                                           image_width=args.image_width,
-                                           image_height=args.image_height)
+                                           tile_size=args.tile_size,
+                                           num_tiles=args.num_tiles)
 
     # define loss function (criterion) and optimizer
     # criterion = torch.nn.SmoothL1Loss()
@@ -153,12 +150,12 @@ def main():
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 60, 90, 120], gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 60, 90], gamma=0.5)
 
     """ Train the model """
     from datetime import datetime
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    log_prefix = f'{current_time}_{args.arch}_fold_{args.fold}_image_{args.image_width}_{args.image_height}'
+    log_prefix = f'{current_time}_{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}'
     log_dir = os.path.join(configure.TRAINING_LOG_PATH,
                            log_prefix)
 
@@ -167,24 +164,18 @@ def main():
 
     best_score = 0.0
     model_path = os.path.join(configure.MODEL_PATH,
-                              f'{args.arch}_fold_{args.fold}_image_{args.image_width}_{args.image_height}.pth')
+                              f'{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}.pth')
 
     print(f'training started: {current_time}')
     for epoch in range(args.epochs):
-        train_loss, train_score = train(
-            train_loader=train_loader,
-            model=model,
-            criterion=criterion,
-            optimizer=optimizer,
-            args=args
-        )
+        train_loss, train_score = train(train_loader=train_loader,
+                                        model=model,
+                                        criterion=criterion,
+                                        optimizer=optimizer)
 
-        valid_loss, valid_score = valid(
-            valid_loader=valid_loader,
-            model=model,
-            criterion=criterion,
-            args=args
-        )
+        valid_loss, valid_score = valid(valid_loader=valid_loader,
+                                        model=model,
+                                        criterion=criterion)
 
         learning_rate = scheduler.get_lr()[0]
         if args.log:

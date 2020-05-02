@@ -10,3 +10,4 @@
 |April-28-16:45:22|EfficientNet-B5|HorizontalFlip,VerticalFlip|384 * 384|16|0.7475| 0.63
 |April-29-10:39:11|EfficientNet-B2|crop_white, <br>HorizontalFlip,VerticalFlip,<br>RandomRotate90,<br>IAAAdditiveGaussianNoise,<br>GaussNoise,<br>RandomBrightnessContrast,<br>ShiftScaleRotate|512 * 512|16|0.8088|0.70
 |April-29-10:39:11|EfficientNet-B3|same as above|512 * 512|16|0.7881|0.65|
+|May-01-20:45:45|Se-Resnext50_32x4d|same as above|tile size: 128, num tiles: 12|24|0.8209|0.76|

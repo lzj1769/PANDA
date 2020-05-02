@@ -1,15 +1,2 @@
 Loaded pretrained weights for efficientnet-b2
-training started: May02_12-40-37
-epoch: 0, best score: 0.5078679193220715, date: May02_12-43-01
-epoch: 1, best score: 0.5926025742656018, date: May02_12-45-24
-epoch: 2, best score: 0.6457694459089691, date: May02_12-47-47
-epoch: 3, best score: 0.6602678348628941, date: May02_12-50-08
-epoch: 4, best score: 0.6872247377395917, date: May02_12-52-32
-epoch: 5, best score: 0.6959979279670583, date: May02_12-54-55
-epoch: 8, best score: 0.7090211033523152, date: May02_13-02-00
-epoch: 9, best score: 0.7099961297598498, date: May02_13-04-22
-epoch: 10, best score: 0.7261057389505831, date: May02_13-06-43
-epoch: 14, best score: 0.733508114750723, date: May02_13-16-11
-epoch: 17, best score: 0.7368106535625493, date: May02_13-23-15
-epoch: 20, best score: 0.7378237112295235, date: May02_13-30-20
-epoch: 21, best score: 0.747398840132214, date: May02_13-32-42
+training started: May02_21-58-52

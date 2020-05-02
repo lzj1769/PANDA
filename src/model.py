@@ -17,31 +17,41 @@ class AdaptiveConcatPool2d(nn.Module):
 
 
 class Lambda(nn.Module):
-    def __init__(self, f): super().__init__(); self.f = f
+    def __init__(self, f):
+        super().__init__()
+        self.f = f
 
     def forward(self, x):
         return self.f(x)
 
 
 class Flatten(nn.Module):
-    def __init__(self): super().__init__()
+    def __init__(self):
+        super().__init__()
 
     def forward(self, x):
         return x.view(x.size(0), -1)
 
 
 class PandaNet(nn.Module):
-    def __init__(self, arch, num_classes=6):
+    def __init__(self, arch, num_classes=6, pretrained=True):
         super().__init__()
 
         # load EfficientNet
         if 'efficientnet' in arch:
-            self.base = EfficientNet.from_pretrained(model_name=arch)
+            if pretrained:
+                self.base = EfficientNet.from_pretrained(model_name=arch)
+            else:
+                self.base = EfficientNet.from_name(model_name=arch)
+
             self.extract_features = self.base.extract_features
             self.nc = self.base._fc.in_features
 
         elif arch == 'se_resnext50_32x4d':
-            self.base = se_resnext50_32x4d()
+            if pretrained:
+                self.base = se_resnext50_32x4d()
+            else:
+                self.base = se_resnext50_32x4d(pretrained=None)
             self.nc = self.base.last_linear.in_features
             self.extract_features = self.base.features
 
@@ -55,15 +65,14 @@ class PandaNet(nn.Module):
 
     def forward(self, inputs):
         bs, num_tiles, c, h, w = inputs.size()
-        inputs = inputs.view(-1, c, h, w)
+        inputs = inputs.view(-1, c, h, w)  #
 
-        # Convolution layers
-        x = self.extract_features(inputs)
+        x = self.extract_features(inputs)  # bs*N x c x h x w
         shape = x.shape
 
         # concatenate the output for tiles into a single map
-        x = x.view(-1, bs, shape[1], shape[2], shape[3]).permute(0, 2, 1, 3, 4).contiguous() \
-            .view(-1, shape[1], shape[2] * num_tiles, shape[3])  # x: bs x C x N*4 x 4
+        x = x.view(-1, num_tiles, shape[1], shape[2], shape[3]).permute(0, 2, 1, 3, 4).contiguous() \
+            .view(-1, shape[1], shape[2] * num_tiles, shape[3])
 
         # Pooling and final linear layer
         x = self.head(x)
