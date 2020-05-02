@@ -5,11 +5,10 @@ model_list = ['efficientnet-b3', 'efficientnet-b4',
 model_list = ['efficientnet-b2']
 fold_list = [0]
 
-batch_size = {'efficientnet-b1': 16,
-              'efficientnet-b2': 16,
-              'efficientnet-b3': 16,
-              'efficientnet-b4': 12,
-              'efficientnet-b5': 8}
+batch_size = {'efficientnet-b2': 24,
+              'efficientnet-b3': 24,
+              'efficientnet-b4': 24,
+              'se_resnext50_32x4d': 24}
 
 for model in model_list:
     for fold in fold_list:

@@ -7,7 +7,7 @@ import warnings
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from model import PandaEfficientNet
+from model import PandaNet
 import datasets
 import configure
 import utils
@@ -53,18 +53,22 @@ def train(train_loader, model, criterion, optimizer, args):
     train_loss = 0.0
     preds, train_labels = [], []
     for i, (images, target) in enumerate(train_loader):
+        bs = len(target)
+
         images = images.to(args.device)
         target = target.to(args.device)
 
         # compute output
         output = model(images)
-        loss = criterion(output.view(-1), target.float())
+        loss = criterion(output, target)
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
+        pred_isup = output.view(bs, -1).argmax(-1).cpu().numpy()
+
+        # pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
 
         preds.append(pred_isup)
         train_labels.append(target.detach().cpu().numpy())
@@ -85,6 +89,8 @@ def valid(valid_loader, model, criterion, args):
         valid_loss = 0.0
         preds, valid_labels = [], []
         for i, (images, target) in enumerate(valid_loader):
+            bs = len(target)
+
             images = images.to(args.device)
             target = target.to(args.device)
             # batch_size, n_tta, c, h, w = images.size()
@@ -93,9 +99,10 @@ def valid(valid_loader, model, criterion, args):
             # compute output
             output = model(images)
             # output = output.view(batch_size, n_tta, -1).mean(1)
-            loss = criterion(output, target.float())
+            loss = criterion(output, target)
 
-            pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
+            pred_isup = output.view(bs, -1).argmax(-1).cpu().numpy()
+            # pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
 
             preds.append(pred_isup)
             valid_labels.append(target.detach().cpu().numpy())
@@ -120,7 +127,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     args.device = device
 
-    model = PandaEfficientNet(arch=args.arch)
+    model = PandaNet(arch=args.arch)
     model.to(args.device)
 
     train_loader = datasets.get_dataloader(data="train",
@@ -140,7 +147,8 @@ def main():
                                            image_height=args.image_height)
 
     # define loss function (criterion) and optimizer
-    criterion = torch.nn.SmoothL1Loss()
+    # criterion = torch.nn.SmoothL1Loss()
+    criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
@@ -178,7 +186,6 @@ def main():
             args=args
         )
 
-        scheduler.step()
         learning_rate = scheduler.get_lr()[0]
         if args.log:
             tb_writer.add_scalar("learning_rate", learning_rate, epoch)
@@ -192,6 +199,8 @@ def main():
             torch.save(model.state_dict(), model_path)
             current_time = datetime.now().strftime('%b%d_%H-%M-%S')
             print(f"epoch: {epoch}, best score: {valid_score}, date: {current_time}")
+
+        scheduler.step()
 
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
     print(f'training finished: {current_time}')

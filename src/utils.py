@@ -3,13 +3,6 @@ import numpy as np
 import random
 from sklearn.metrics import cohen_kappa_score
 import torch
-from PIL import Image
-from albumentations import (
-    OneOf, IAAAdditiveGaussianNoise, GaussNoise,
-    Compose, Normalize, HorizontalFlip,
-    VerticalFlip, ShiftScaleRotate, RandomBrightnessContrast,
-    RandomRotate90)
-from albumentations.pytorch import ToTensorV2
 
 
 def quadratic_weighted_kappa(y_hat, y):
@@ -24,30 +17,6 @@ def seed_torch(seed):
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
-
-
-def get_transforms(*, data):
-    assert data in ('train', 'valid')
-
-    if data == 'train':
-        return Compose([
-            # HorizontalFlip(p=0.5),
-            # VerticalFlip(p=0.5),
-            # RandomRotate90(p=0.5),
-            # OneOf([
-            #     IAAAdditiveGaussianNoise(),
-            #     GaussNoise(),
-            # ], p=0.2),
-            # RandomBrightnessContrast(p=0.5),
-            # ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2,
-            #                  rotate_limit=45, p=0.2),
-            ToTensorV2(),
-        ])
-
-    elif data == 'valid':
-        return Compose([
-            ToTensorV2(),
-        ])
 
 
 def crop_white(image: np.ndarray) -> np.ndarray:
@@ -73,7 +42,7 @@ def pred_to_isup(pred):
     return pred
 
 
-def tile(img, tile_size=256, num_tiles=12):
+def tile(img, tile_size=128, num_tiles=12):
     shape = img.shape
     # image = Image.fromarray(img)
     # image.save("/home/rs619065/raw.png")
@@ -97,7 +66,7 @@ def tile(img, tile_size=256, num_tiles=12):
     idxs = np.argsort(img.reshape(img.shape[0], -1).sum(-1))[:num_tiles]
     img = img[idxs]
 
-    #for i in range(img.shape[0]):
+    # for i in range(img.shape[0]):
     #    image = Image.fromarray(img[i])
     #    image.save(f"/home/rs619065/raw_{i}.png")
 

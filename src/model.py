@@ -1,28 +1,64 @@
+import torch
 import torch.nn as nn
 from efficientnet import EfficientNet
+from senet import se_resnext50_32x4d
+from mish import Mish
 
 
-class PandaEfficientNet(nn.Module):
-    def __init__(self, arch, num_classes=1, pretrained=True):
+class AdaptiveConcatPool2d(nn.Module):
+    def __init__(self, sz=None):
+        super().__init__()
+        self.output_size = sz
+        self.ap = nn.AdaptiveAvgPool2d(self.output_size)
+        self.mp = nn.AdaptiveMaxPool2d(self.output_size)
+
+    def forward(self, x):
+        return torch.cat([self.mp(x), self.ap(x)], 1)
+
+
+class Lambda(nn.Module):
+    def __init__(self, f): super().__init__(); self.f = f
+
+    def forward(self, x):
+        return self.f(x)
+
+
+class Flatten(nn.Module):
+    def __init__(self): super().__init__()
+
+    def forward(self, x):
+        return x.view(x.size(0), -1)
+
+
+class PandaNet(nn.Module):
+    def __init__(self, arch, num_classes=6):
         super().__init__()
 
-        if pretrained:
+        # load EfficientNet
+        if 'efficientnet' in arch:
             self.base = EfficientNet.from_pretrained(model_name=arch)
-        else:
-            self.base = EfficientNet.from_name(model_name=arch)
+            self.extract_features = self.base.extract_features
+            self.nc = self.base._fc.in_features
 
-        self.in_features = self.base._fc.in_features
+        elif arch == 'se_resnext50_32x4d':
+            self.base = se_resnext50_32x4d()
+            self.nc = self.base.last_linear.in_features
+            self.extract_features = self.base.features
 
-        self.avg_pooling = nn.AdaptiveAvgPool2d(1)
-        self.dropout = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(self.in_features, num_classes)
+        self.head = nn.Sequential(AdaptiveConcatPool2d(1),
+                                  Flatten(),
+                                  nn.Linear(2 * self.nc, 512),
+                                  Mish(),
+                                  nn.BatchNorm1d(512),
+                                  nn.Dropout(0.5),
+                                  nn.Linear(512, num_classes))
 
     def forward(self, inputs):
         bs, num_tiles, c, h, w = inputs.size()
         inputs = inputs.view(-1, c, h, w)
 
         # Convolution layers
-        x = self.base.extract_features(inputs)
+        x = self.extract_features(inputs)
         shape = x.shape
 
         # concatenate the output for tiles into a single map
@@ -30,9 +66,6 @@ class PandaEfficientNet(nn.Module):
             .view(-1, shape[1], shape[2] * num_tiles, shape[3])  # x: bs x C x N*4 x 4
 
         # Pooling and final linear layer
-        x = self.avg_pooling(x)
-        x = x.view(bs, -1)
-        x = self.dropout(x)
-        x = self.fc1(x)
+        x = self.head(x)
 
         return x

@@ -6,13 +6,17 @@ import skimage.io
 import openslide
 import torch
 from torch.utils.data import Dataset, DataLoader
-import albumentations.augmentations.functional as F
-import PIL
+from albumentations import (
+    OneOf, IAAAdditiveGaussianNoise, GaussNoise,
+    Compose, HorizontalFlip,
+    VerticalFlip, ShiftScaleRotate, RandomBrightnessContrast,
+    RandomRotate90)
 
 import configure
 import utils
 
-PIL.Image.MAX_IMAGE_PIXELS = 933120000
+mean = torch.tensor([1.0 - 0.90949707, 1.0 - 0.8188697, 1.0 - 0.87795304])
+std = torch.tensor([0.36357649, 0.49984502, 0.40477625])
 
 
 class PandaDataset(Dataset):
@@ -34,15 +38,34 @@ class PandaDataset(Dataset):
         image = skimage.io.MultiImage(file_path)[-1]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        image = utils.tile(image, tile_size=128, num_tiles=12)
         label = self.df['isup_grade'].values[idx]
 
-        aug_image = np.empty(shape=(12, 3, 128, 128), dtype=np.float32)
-        for i in range(image.shape[0]):
-            augmented = self.transform(image=image[i])
-            aug_image[i] = augmented['image'] / 255.0
+        if self.transform:
+            augmented = self.transform(image=image)
+            image = augmented['image']
 
-        return aug_image, label
+        # split image
+        image = utils.tile(image, tile_size=128, num_tiles=12)
+        image = torch.from_numpy(1.0 - image / 255.0).float()
+        image = (image - mean) / std
+        image = image.permute(0, 3, 1, 2)
+
+        return image, label
+
+
+def get_transforms():
+    return Compose([
+        HorizontalFlip(p=0.5),
+        VerticalFlip(p=0.5),
+        RandomRotate90(p=0.5),
+        # OneOf([
+        #     IAAAdditiveGaussianNoise(),
+        #     GaussNoise(),
+        # ], p=0.2),
+        # RandomBrightnessContrast(p=0.5),
+        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2,
+                         rotate_limit=45, p=0.2),
+    ])
 
 
 def get_dataloader(data, data_dir, fold, batch_size,
@@ -58,7 +81,7 @@ def get_dataloader(data, data_dir, fold, batch_size,
             df=df_train,
             data_dir=data_dir,
             data="train",
-            transform=utils.get_transforms(data="train"),
+            transform=get_transforms(),
             image_width=image_width,
             image_height=image_height)
 
@@ -66,7 +89,7 @@ def get_dataloader(data, data_dir, fold, batch_size,
                                 batch_size=batch_size,
                                 num_workers=num_workers,
                                 pin_memory=True,
-                                shuffle=False)
+                                shuffle=True)
     elif data == "valid":
         df_valid_path = os.path.join(configure.SPLIT_FOLDER, "fold_{}_valid.csv".format(fold))
         df_valid = pd.read_csv(df_valid_path)
@@ -75,12 +98,12 @@ def get_dataloader(data, data_dir, fold, batch_size,
             df=df_valid,
             data_dir=data_dir,
             data="valid",
-            transform=utils.get_transforms(data="valid"),
+            transform=None,
             image_width=image_width,
             image_height=image_height)
 
         dataloader = DataLoader(dataset=valid_dataset,
-                                batch_size=batch_size // 3,
+                                batch_size=batch_size,
                                 num_workers=num_workers,
                                 pin_memory=False,
                                 shuffle=False)
