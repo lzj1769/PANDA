@@ -4,6 +4,8 @@ module load cuda
 source ~/.zshrc
 source ~/miniconda3/bin/activate kaggle
 
+export CUDA_VISIBLE_DEVICES=0,1
+
 python train.py \
 --arch $1 \
 --fold $2 \

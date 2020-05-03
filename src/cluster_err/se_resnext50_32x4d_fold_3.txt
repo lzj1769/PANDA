@@ -1,3 +1,2 @@
 (OK) Loading cuda 10.2.89
 (OK) Loading gcc system-default
-slurmstepd: error: *** JOB 13697036 ON ncg19 CANCELLED AT 2020-05-02T13:38:18 ***

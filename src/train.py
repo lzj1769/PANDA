@@ -31,7 +31,7 @@ def parse_args():
                         help="Batch size per GPU/CPU for training.")
     parser.add_argument("--tile_size", default=128, type=int)
     parser.add_argument("--num_tiles", default=12, type=int)
-    parser.add_argument("--learning_rate", default=1e-4, type=float,
+    parser.add_argument("--learning_rate", default=3e-4, type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument("--weight_decay", default=1e-04, type=float,
                         help="Weight decay if we apply some.")
@@ -78,27 +78,30 @@ def train(train_loader, model, criterion, optimizer):
     return train_loss, score
 
 
-def valid(valid_loader, model, criterion):
+def valid(valid_loader, model, criterion, args):
     model.eval()
 
     with torch.no_grad():
         valid_loss = 0.0
         preds, valid_labels = [], []
         for i, (images, target) in enumerate(valid_loader):
-            bs = len(target)
+            bs = images.size(0)
 
             images = images.to("cuda")
             target = target.to("cuda")
-            # batch_size, n_tta, c, h, w = images.size()
-            # images = images.view(-1, c, h, w)
+
+            # dihedral TTA
+            images = torch.stack([images, images.flip(-1),
+                                  images.flip(-2), images.flip(-1, -2),
+                                  images.transpose(-1, -2), images.transpose(-1, -2).flip(-1),
+                                  images.transpose(-1, -2).flip(-2), images.transpose(-1, -2).flip(-1, -2)], 1)
+
+            images = images.view(-1, args.num_tiles, 3, args.tile_size, args.tile_size)
 
             # compute output
-            output = model(images)
-            # output = output.view(batch_size, n_tta, -1).mean(1)
+            output = model(images).view(bs, 8, -1).mean(1)
             loss = criterion(output, target)
-
-            pred_isup = output.view(bs, -1).argmax(-1).cpu().numpy()
-            # pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
+            pred_isup = output.argmax(-1).cpu().numpy()
 
             preds.append(pred_isup)
             valid_labels.append(target.detach().cpu().numpy())
@@ -150,7 +153,7 @@ def main():
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 60, 90], gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 60, 90], gamma=0.2)
 
     """ Train the model """
     from datetime import datetime
@@ -175,7 +178,8 @@ def main():
 
         valid_loss, valid_score = valid(valid_loader=valid_loader,
                                         model=model,
-                                        criterion=criterion)
+                                        criterion=criterion,
+                                        args=args)
 
         learning_rate = scheduler.get_lr()[0]
         if args.log:

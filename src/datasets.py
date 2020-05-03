@@ -5,10 +5,11 @@ import skimage.io
 import torch
 from torch.utils.data import Dataset, DataLoader
 from albumentations import (
-    OneOf, IAAAdditiveGaussianNoise, GaussNoise,
-    Compose, HorizontalFlip,
-    VerticalFlip, ShiftScaleRotate, RandomBrightnessContrast,
-    RandomRotate90)
+    CLAHE, RandomRotate90,
+    Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, HueSaturationValue,
+    IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, MedianBlur, RandomBrightnessContrast, IAAPiecewiseAffine,
+    IAASharpen, IAAEmboss, Flip, OneOf, Compose
+)
 
 import configure
 import utils
@@ -36,8 +37,7 @@ class PandaDataset(Dataset):
         label = self.df['isup_grade'].values[idx]
 
         if self.data == "train":
-            augmented = self.transform(image=image)
-            image = augmented['image']
+            image = self.transform(image=image)['image']
 
         # split image
         image = utils.tile(image, tile_size=self.tile_size, num_tiles=self.num_tiles)
@@ -49,16 +49,26 @@ class PandaDataset(Dataset):
 
 def get_transforms():
     return Compose([
-        HorizontalFlip(p=0.5),
-        VerticalFlip(p=0.5),
         RandomRotate90(p=0.5),
+        Flip(p=0.5),
+        Transpose(p=0.5),
         OneOf([
             IAAAdditiveGaussianNoise(),
             GaussNoise(),
         ], p=0.2),
-        RandomBrightnessContrast(p=0.5),
-        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2,
-                         rotate_limit=90, p=0.5),
+        OneOf([
+            MotionBlur(p=.2),
+            MedianBlur(blur_limit=3, p=0.1),
+            Blur(blur_limit=3, p=0.1),
+        ], p=0.2),
+        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
+        OneOf([
+            CLAHE(clip_limit=2),
+            IAASharpen(),
+            IAAEmboss(),
+            RandomBrightnessContrast(),
+        ], p=0.3),
+        HueSaturationValue(p=0.3),
     ])
 
 
