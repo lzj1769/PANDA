@@ -12,5 +12,6 @@ python train.py \
 --batch_size $3 \
 --tile_size $4 \
 --num_tile $5 \
+--task $6 \
 --pretrained \
 --log

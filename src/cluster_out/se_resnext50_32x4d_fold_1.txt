@@ -12,3 +12,10 @@ epoch: 25, best score: 0.7633887250478426, date: May03_16-34-10
 epoch: 28, best score: 0.7715281832454914, date: May03_16-47-19
 epoch: 31, best score: 0.7774160202187496, date: May03_17-00-28
 epoch: 34, best score: 0.7806269051773131, date: May03_17-13-39
+epoch: 44, best score: 0.7821592551545207, date: May03_17-57-35
+epoch: 47, best score: 0.7843633773838727, date: May03_18-10-46
+epoch: 55, best score: 0.7853510430117283, date: May03_18-45-54
+epoch: 69, best score: 0.7855622696463421, date: May03_19-47-19
+epoch: 73, best score: 0.7881275321750245, date: May03_20-05-00
+epoch: 86, best score: 0.7898670371465885, date: May03_21-02-03
+training finished: May03_21-59-12

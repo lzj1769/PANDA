@@ -25,6 +25,7 @@ def parse_args():
     parser.add_argument('--pretrained', dest='pretrained', action='store_true',
                         help='use pre-trained model')
     parser.add_argument("--fold", type=int, default=0)
+    parser.add_argument("--task", type=str, default='classification')
     parser.add_argument("--num_workers", default=24, type=int,
                         help="How many sub-processes to use for data.")
     parser.add_argument("--batch_size", default=16, type=int,
@@ -45,7 +46,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def train(train_loader, model, criterion, optimizer):
+def train(train_loader, model, criterion, optimizer, args):
     model.train()
 
     train_loss = 0.0
@@ -54,21 +55,24 @@ def train(train_loader, model, criterion, optimizer):
         images = images.to("cuda")
         target = target.to("cuda")
 
-        # compute output
         output = model(images)
-        loss = criterion(output, target)
+        if args.task == 'classification':
+            loss = criterion(output, target)
+        elif args.task == 'regression':
+            loss = criterion(output.view(-1), target.float())
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        pred_isup = output.view(output.size(0), -1).argmax(-1).cpu().numpy()
-
-        # pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
+        pred_isup = None
+        if args.task == 'classification':
+            pred_isup = output.view(output.size(0), -1).argmax(-1).cpu().numpy()
+        elif args.task == 'regression':
+            pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
 
         preds.append(pred_isup)
         train_labels.append(target.detach().cpu().numpy())
-
         train_loss += loss.item() / len(train_loader)
 
     preds = np.concatenate(preds)
@@ -89,19 +93,21 @@ def valid(valid_loader, model, criterion, args):
 
             images = images.to("cuda")
             target = target.to("cuda")
-
             # dihedral TTA
             images = torch.stack([images, images.flip(-1),
                                   images.flip(-2), images.flip(-1, -2),
                                   images.transpose(-1, -2), images.transpose(-1, -2).flip(-1),
                                   images.transpose(-1, -2).flip(-2), images.transpose(-1, -2).flip(-1, -2)], 1)
-
             images = images.view(-1, args.num_tiles, 3, args.tile_size, args.tile_size)
 
-            # compute output
             output = model(images).view(bs, 8, -1).mean(1)
-            loss = criterion(output, target)
-            pred_isup = output.argmax(-1).cpu().numpy()
+            pred_isup = None
+            if args.task == 'classification':
+                loss = criterion(output, target)
+                pred_isup = output.argmax(-1).cpu().numpy()
+            elif args.task == 'regression':
+                loss = criterion(output.view(-1), target.float())
+                pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
 
             preds.append(pred_isup)
             valid_labels.append(target.detach().cpu().numpy())
@@ -127,9 +133,6 @@ def main():
         print("cuda is not available")
         exit(0)
 
-    model = PandaNet(arch=args.arch)
-    model.to("cuda")
-
     train_loader = datasets.get_dataloader(data="train",
                                            fold=args.fold,
                                            data_dir=configure.TRAIN_IMAGE_PATH,
@@ -147,8 +150,16 @@ def main():
                                            num_tiles=args.num_tiles)
 
     # define loss function (criterion) and optimizer
-    # criterion = torch.nn.SmoothL1Loss()
-    criterion = torch.nn.CrossEntropyLoss()
+    model = None
+    if args.task == 'classification':
+        criterion = torch.nn.CrossEntropyLoss()
+        model = PandaNet(arch=args.arch, num_classes=6)
+    elif args.task == 'regression':
+        criterion = torch.nn.SmoothL1Loss()
+        model = PandaNet(arch=args.arch, num_classes=1)
+
+    model.to("cuda")
+
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
@@ -158,7 +169,7 @@ def main():
     """ Train the model """
     from datetime import datetime
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    log_prefix = f'{current_time}_{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}'
+    log_prefix = f'{current_time}_{args.arch}_{args.task}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}'
     log_dir = os.path.join(configure.TRAINING_LOG_PATH,
                            log_prefix)
 
@@ -167,14 +178,15 @@ def main():
 
     best_score = 0.0
     model_path = os.path.join(configure.MODEL_PATH,
-                              f'{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}.pth')
+                              f'{args.arch}_{args.task}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}.pth')
 
     print(f'training started: {current_time}')
     for epoch in range(args.epochs):
         train_loss, train_score = train(train_loader=train_loader,
                                         model=model,
                                         criterion=criterion,
-                                        optimizer=optimizer)
+                                        optimizer=optimizer,
+                                        args=args)
 
         valid_loss, valid_score = valid(valid_loader=valid_loader,
                                         model=model,

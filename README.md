@@ -11,5 +11,5 @@
 |April-29-10:39:11|EfficientNet-B2|Regression|crop_white, <br>HorizontalFlip,VerticalFlip,<br>RandomRotate90,<br>IAAAdditiveGaussianNoise,<br>GaussNoise,<br>RandomBrightnessContrast,<br>ShiftScaleRotate|512 * 512|16|0.8088|0.70
 |April-29-10:39:11|EfficientNet-B3|Regression|same as above|512 * 512|16|0.7881|0.65|
 |May-01-20:45:45|Se-Resnext50_32x4d|Classification|same as above|tile size: 128, num tiles: 12|24|0.8209|0.76|
-|May-03-14:39:48|Se-Resnext50_32x4d|Classification|RandomRotate90<br>Flip<br>Transpose<br>IAAAdditiveGaussianNoise<br>GaussNoise<br>MotionBlur<br>MedianBlur<br>Blur<br>ShiftScaleRotate<br>HueSaturationValue|tile size: 128, num tiles: 12|24|||
-|May-03-15:16:00|Se-Resnext101_32x4d|Classification|same as above|tile size: 128, num tiles: 12|24|0.8209|0.76|
+|May-03-14:39:48|Se-Resnext50_32x4d|Classification|RandomRotate90<br>Flip<br>Transpose<br>IAAAdditiveGaussianNoise<br>GaussNoise<br>MotionBlur<br>MedianBlur<br>Blur<br>ShiftScaleRotate<br>HueSaturationValue|tile size: 128, num tiles: 12|24|0.8070,0.7898,0.8294,0.8203,0.8051|0.77|
+|May-03-15:16:00|Se-Resnext101_32x4d|Classification|same as above|tile size: 128, num tiles: 12|16|0.8070,0.7898,0.8294,0.8203,0.8051|0.77|
