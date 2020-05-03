@@ -9,3 +9,4 @@ epoch: 14, best score: 0.7744544777089895, date: May03_15-45-33
 epoch: 16, best score: 0.7798877417227432, date: May03_15-54-18
 epoch: 18, best score: 0.7915171218482144, date: May03_16-03-04
 epoch: 33, best score: 0.7915449506354623, date: May03_17-08-41
+epoch: 37, best score: 0.7959354877895576, date: May03_17-26-12
