@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from efficientnet import EfficientNet
-from senet import se_resnext50_32x4d
+from senet import se_resnext50_32x4d, se_resnext101_32x4d
 from mish import Mish
 
 
@@ -14,15 +14,6 @@ class AdaptiveConcatPool2d(nn.Module):
 
     def forward(self, x):
         return torch.cat([self.mp(x), self.ap(x)], 1)
-
-
-class Lambda(nn.Module):
-    def __init__(self, f):
-        super().__init__()
-        self.f = f
-
-    def forward(self, x):
-        return self.f(x)
 
 
 class Flatten(nn.Module):
@@ -52,6 +43,14 @@ class PandaNet(nn.Module):
                 self.base = se_resnext50_32x4d()
             else:
                 self.base = se_resnext50_32x4d(pretrained=None)
+            self.nc = self.base.last_linear.in_features
+            self.extract_features = self.base.features
+
+        elif arch == 'se_resnext101_32x4d':
+            if pretrained:
+                self.base = se_resnext101_32x4d()
+            else:
+                self.base = se_resnext101_32x4d(pretrained=None)
             self.nc = self.base.last_linear.in_features
             self.extract_features = self.base.features
 

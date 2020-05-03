@@ -10,5 +10,7 @@ python train.py \
 --arch $1 \
 --fold $2 \
 --batch_size $3 \
+--tile_size $4 \
+--num_tile $5 \
 --pretrained \
 --log
