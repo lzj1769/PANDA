@@ -1,14 +1,10 @@
 import subprocess
 
-model_list = ['efficientnet-b3', 'efficientnet-b4',
-              'efficientnet-b5']
-fold_list = [0]
+model_list = ['se_resnext50_32x4d']
+fold_list = [0, 1, 2, 3, 4]
 
 batch_size = {'se_resnext50_32x4d': 24,
-              'se_resnext101_32x4d': 16,
-              'efficientnet-b3': 8,
-              'efficientnet-b4': 8,
-              'efficientnet-b5': 8}
+              'se_resnext101_32x4d': 16}
 
 tile_size = 128
 num_tiles = 12
