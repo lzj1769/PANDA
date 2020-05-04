@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import cv2
 import random
 from sklearn.metrics import cohen_kappa_score
 import torch
@@ -71,3 +72,11 @@ def tile(img, tile_size=128, num_tiles=12):
     #    image.save(f"/home/rs619065/raw_{i}.png")
 
     return img
+
+
+def enhance_image(image, contrast=1, brightness=15):
+    """
+    Enhance constrast and brightness of images
+    """
+    img_enhanced = cv2.addWeighted(image, contrast, image, 0, brightness)
+    return img_enhanced

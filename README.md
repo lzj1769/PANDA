@@ -14,3 +14,4 @@
 |May-03-14:39:48|Se-Resnext50_32x4d|Classification|RandomRotate90<br>Flip<br>Transpose<br>IAAAdditiveGaussianNoise<br>GaussNoise<br>MotionBlur<br>MedianBlur<br>Blur<br>ShiftScaleRotate<br>HueSaturationValue|tile size: 128, num tiles: 12|24|0.8070,0.7898,0.8294,0.8203,0.8051|0.77|
 |May-03-15:16:00|Se-Resnext101_32x4d|Classification|same as above|tile size: 128, num tiles: 12|16|0.8030,0.7784,0.8197,0.8072,0.8021|0.76|
 |May-03-15:16:00|Se-Resnext50_32x4d|Regression|same as above|tile size: 128, num tiles: 12|16|0.8097,0.7955,0.8214,0.8179,0.7873|0.79|
+|May-04-15:00:00|Se-Resnext50_32x4d|Regression|enhance_image<br>crop_white<br>same as above|tile size: 128, num tiles: 12|16|0.8097,0.7955,0.8214,0.8179,0.7873|0.79|

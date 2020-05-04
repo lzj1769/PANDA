@@ -143,42 +143,7 @@ def detect_tissue(wsi, sensitivity=3000, downsampling_factor=4):
     return mask_contours, tier, slide, downsampling_factor
 
 
-def detect_and_crop(input_image, output_image=None, sensitivity=3000,
-                    downsample_rate=4):
-    # Open Slide
-    wsi = openslide.open_slide(input_image)
-
-    # Get returns from detect_tissue()
-    tissue_contours, tier, downsampled_slide, downsampling_factor = detect_tissue(wsi, sensitivity, downsample_rate)
-
-    # Get Tissue Only Slide
-    base_slide_mask = np.zeros(downsampled_slide.shape[:2])
-    tissue_slide = draw_tissue_polygons(base_slide_mask, tissue_contours, 'line', 5)
-    tissue_only_slide = tissue_cutout(tissue_slide, tissue_contours, downsampled_slide)
-    # Add Tissue Only to verbose print
-
-    # Get minimal bounding rectangle for all tissue contours
-    if len(tissue_contours) == 0:
-        img_id = input_image.split("/")[-1]
-        print(f"No Tissue Contours - ID: {img_id}")
-        return None, 1.0
-
-    all_bounding_rect = cv2.minAreaRect(np.concatenate(tissue_contours))
-    # Crop with getSubImage()
-    smart_bounding_crop = getSubImage(all_bounding_rect, tissue_only_slide)
-
-    # Crop empty space
-    # Remove by row
-    row_not_blank = [row.all() for row in ~np.all(smart_bounding_crop == [255, 0, 0],
-                                                  axis=1)]
-    space_cut = smart_bounding_crop[row_not_blank, :]
-    # Remove by column
-    col_not_blank = [col.all() for col in ~np.all(smart_bounding_crop == [255, 0, 0],
-                                                  axis=0)]
-    space_cut = space_cut[:, col_not_blank]
-    image = Image.fromarray(space_cut)
-    image.save(output_image)
-
+#def detect_and_crop(image, sensitivity=3000)
 
 if __name__ == "__main__":
     df_train = pd.read_csv(configure.TRAIN_DF)

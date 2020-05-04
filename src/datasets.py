@@ -33,6 +33,8 @@ class PandaDataset(Dataset):
         file_path = f'{self.data_dir}/{file_name}.tiff'
         image = skimage.io.MultiImage(file_path)[-1]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        image = utils.enhance_image(image)
         image = utils.crop_white(image)
 
         label = self.df['isup_grade'].values[idx]
