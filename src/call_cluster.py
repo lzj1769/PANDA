@@ -8,7 +8,7 @@ batch_size = {'se_resnext50_32x4d': 24,
 
 tile_size = 128
 num_tiles = 12
-task = 'regression'
+task = 'classification'
 
 for model in model_list:
     for fold in fold_list:

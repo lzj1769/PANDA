@@ -60,20 +60,23 @@ class PandaNet(nn.Module):
                                   Mish(),
                                   nn.BatchNorm1d(512),
                                   nn.Dropout(0.5),
-                                  nn.Linear(512, num_classes))
+                                  nn.Linear(512, 1),
+                                  Mish())
+        self.logit = nn.Linear(12, num_classes)
 
     def forward(self, inputs):
         bs, num_tiles, c, h, w = inputs.size()
         inputs = inputs.view(-1, c, h, w)  #
 
         x = self.extract_features(inputs)  # bs*N x c x h x w
-        shape = x.shape
+        # shape = x.shape
 
         # concatenate the output for tiles into a single map
-        x = x.view(-1, num_tiles, shape[1], shape[2], shape[3]).permute(0, 2, 1, 3, 4).contiguous() \
-            .view(-1, shape[1], shape[2] * num_tiles, shape[3])
+        # x = x.view(-1, num_tiles, shape[1], shape[2], shape[3]).permute(0, 2, 1, 3, 4).contiguous() \
+        #    .view(-1, shape[1], shape[2] * num_tiles, shape[3])
 
         # Pooling and final linear layer
         x = self.head(x)
+        x = self.logit(x.view(-1, num_tiles))
 
         return x
