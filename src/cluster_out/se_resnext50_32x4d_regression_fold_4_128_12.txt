@@ -1,0 +1,21 @@
+training started: May03_23-15-41
+epoch: 0, best score: 0.6067218032424239, date: May03_23-20-08
+epoch: 2, best score: 0.6683097735862261, date: May03_23-28-51
+epoch: 3, best score: 0.6929910712668933, date: May03_23-33-12
+epoch: 8, best score: 0.7185738762777705, date: May03_23-54-54
+epoch: 10, best score: 0.7346469669465687, date: May04_00-03-36
+epoch: 11, best score: 0.7545800771198049, date: May04_00-07-56
+epoch: 16, best score: 0.7557457164957732, date: May04_00-29-40
+epoch: 22, best score: 0.756275469003495, date: May04_00-55-47
+epoch: 23, best score: 0.7579819362981683, date: May04_01-00-08
+epoch: 25, best score: 0.7613171429394585, date: May04_01-08-50
+epoch: 26, best score: 0.7676397420417262, date: May04_01-13-10
+epoch: 28, best score: 0.7686417732331677, date: May04_01-21-52
+epoch: 30, best score: 0.7698564270138358, date: May04_01-30-32
+epoch: 31, best score: 0.7710687717380255, date: May04_01-34-54
+epoch: 34, best score: 0.7733661364771842, date: May04_01-47-57
+epoch: 36, best score: 0.773841240096492, date: May04_01-56-41
+epoch: 37, best score: 0.7814182640643352, date: May04_02-01-01
+epoch: 44, best score: 0.7839444420717752, date: May04_02-31-27
+epoch: 52, best score: 0.7873465466678917, date: May04_03-06-13
+training finished: May04_06-30-18
