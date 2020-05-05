@@ -1,5 +1,0 @@
-training started: May04_15-00-47
-epoch: 0, best score: 0.536827426411564, date: May04_15-05-09
-epoch: 1, best score: 0.645496749192198, date: May04_15-09-29
-epoch: 2, best score: 0.7006694408289835, date: May04_15-13-48
-epoch: 7, best score: 0.7111229290463523, date: May04_15-35-26

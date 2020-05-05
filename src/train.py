@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument('--pretrained', dest='pretrained', action='store_true',
                         help='use pre-trained model')
     parser.add_argument("--fold", type=int, default=0)
-    parser.add_argument("--task", type=str, default='classification')
+    parser.add_argument("--task", type=str, default='regression')
     parser.add_argument("--num_workers", default=24, type=int,
                         help="How many sub-processes to use for data.")
     parser.add_argument("--batch_size", default=16, type=int,
