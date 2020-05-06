@@ -25,7 +25,7 @@ class Flatten(nn.Module):
 
 
 class PandaNet(nn.Module):
-    def __init__(self, arch, num_classes=6, pretrained=True):
+    def __init__(self, arch, num_classes=1, pretrained=True):
         super().__init__()
 
         # load EfficientNet
@@ -54,13 +54,13 @@ class PandaNet(nn.Module):
             self.nc = self.base.last_linear.in_features
             self.extract_features = self.base.features
 
-        self.head = nn.Sequential(AdaptiveConcatPool2d(1),
-                                  Flatten(),
-                                  nn.Linear(2 * self.nc, 512),
-                                  Mish(),
-                                  nn.BatchNorm1d(512),
-                                  nn.Dropout(0.5),
-                                  nn.Linear(512, num_classes))
+        self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
+                                   Flatten(),
+                                   nn.Linear(2 * self.nc, 512),
+                                   Mish(),
+                                   nn.BatchNorm1d(512),
+                                   nn.Dropout(0.5),
+                                   nn.Linear(512, num_classes))
 
     def forward(self, inputs):
         bs, num_tiles, c, h, w = inputs.size()
@@ -74,6 +74,6 @@ class PandaNet(nn.Module):
             .view(-1, shape[1], shape[2] * num_tiles, shape[3])
 
         # Pooling and final linear layer
-        x = self.head(x)
+        x = self.logit(x)
 
         return x

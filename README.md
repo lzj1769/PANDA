@@ -16,3 +16,4 @@
 |May-03-15:16:00|Se-Resnext50_32x4d|Regression|same as above|tile size: 128, num tiles: 12|24|0.8097,0.7955,0.8214,0.8179,0.7873|0.79|
 |May-04-15:00:00|Se-Resnext50_32x4d|Regression|enhance_image<br>crop_white<br>same as above|tile size: 128, num tiles: 12|24|0.8087,0.7937,0.8145,0.8245,0.7902|0.80|
 |May-04-15:00:00|Se-Resnext50_32x4d|Regression|enhance_image<br>crop_white<br>same as above|tile size: 128, num tiles: 16|16|0.7992,0.7870,0.8156,0.8140,0.7909|0.79|
+|May-04-15:00:00|Se-Resnext50_32x4d|Regression + Classification(data_provider)|enhance_image<br>crop_white<br>same as above|tile size: 128, num tiles: 16|16|0.7725,0.7813,0.7874,0.7932,0.7684|0.79|

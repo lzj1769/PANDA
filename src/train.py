@@ -3,7 +3,7 @@ import os
 import sys
 import numpy as np
 import warnings
-
+from sklearn.metrics import accuracy_score
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
@@ -20,8 +20,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # Required parameters
-    parser.add_argument('--arch', metavar='ARCH', default='efficientnet-b0',
-                        help='model architecture (default: efficientnet-b0)')
+    parser.add_argument('--arch', metavar='ARCH', default='se_resnext50_32x4d',
+                        help='model architecture (default: se_resnext50_32x4d)')
     parser.add_argument('--pretrained', dest='pretrained', action='store_true',
                         help='use pre-trained model')
     parser.add_argument("--fold", type=int, default=0)
@@ -46,34 +46,27 @@ def parse_args():
     return parser.parse_args()
 
 
-def train(train_loader, model, criterion, optimizer, args):
+def train(dataloader, model, criterion, optimizer, args):
     model.train()
 
     train_loss = 0.0
     preds, train_labels = [], []
-    for i, (images, target) in enumerate(train_loader):
+    for i, (images, target) in enumerate(dataloader):
         images = images.to("cuda")
         target = target.to("cuda")
 
         output = model(images)
-        if args.task == 'classification':
-            loss = criterion(output, target)
-        elif args.task == 'regression':
-            loss = criterion(output.view(-1), target.float())
+        loss = criterion(output.view(-1), target.float())
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        pred_isup = None
-        if args.task == 'classification':
-            pred_isup = output.view(output.size(0), -1).argmax(-1).cpu().numpy()
-        elif args.task == 'regression':
-            pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
+        pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
 
         preds.append(pred_isup)
         train_labels.append(target.detach().cpu().numpy())
-        train_loss += loss.item() / len(train_loader)
+        train_loss += loss.item() / len(dataloader)
 
     preds = np.concatenate(preds)
     train_labels = np.concatenate(train_labels)
@@ -82,13 +75,13 @@ def train(train_loader, model, criterion, optimizer, args):
     return train_loss, score
 
 
-def valid(valid_loader, model, criterion, args):
+def valid(dataloader, model, criterion, args):
     model.eval()
 
     with torch.no_grad():
         valid_loss = 0.0
         preds, valid_labels = [], []
-        for i, (images, target) in enumerate(valid_loader):
+        for i, (images, target) in enumerate(dataloader):
             bs = images.size(0)
 
             images = images.to("cuda")
@@ -101,18 +94,13 @@ def valid(valid_loader, model, criterion, args):
             images = images.view(-1, args.num_tiles, 3, args.tile_size, args.tile_size)
 
             output = model(images).view(bs, 8, -1).mean(1)
-            pred_isup = None
-            if args.task == 'classification':
-                loss = criterion(output, target)
-                pred_isup = output.argmax(-1).cpu().numpy()
-            elif args.task == 'regression':
-                loss = criterion(output.view(-1), target.float())
-                pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
+            loss = criterion(output.view(-1), target.float())
+            pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
 
             preds.append(pred_isup)
             valid_labels.append(target.detach().cpu().numpy())
 
-            valid_loss += loss.item() / len(valid_loader)
+            valid_loss += loss.item() / len(dataloader)
 
         preds = np.concatenate(preds)
         valid_labels = np.concatenate(valid_labels)
@@ -133,38 +121,22 @@ def main():
         print("cuda is not available")
         exit(0)
 
-    train_loader = datasets.get_dataloader(data="train",
-                                           fold=args.fold,
-                                           data_dir=configure.TRAIN_IMAGE_PATH,
-                                           batch_size=args.batch_size,
-                                           num_workers=args.num_workers,
-                                           tile_size=args.tile_size,
-                                           num_tiles=args.num_tiles)
-
-    valid_loader = datasets.get_dataloader(data="valid",
-                                           fold=args.fold,
-                                           data_dir=configure.TRAIN_IMAGE_PATH,
-                                           batch_size=args.batch_size,
-                                           num_workers=args.num_workers,
-                                           tile_size=args.tile_size,
-                                           num_tiles=args.num_tiles)
+    train_loader, valid_loader = datasets.get_dataloader(
+        fold=args.fold,
+        batch_size=args.batch_size,
+        num_workers=args.num_workers)
 
     # define loss function (criterion) and optimizer
-    model = None
-    if args.task == 'classification':
-        criterion = torch.nn.CrossEntropyLoss()
-        model = PandaNet(arch=args.arch, num_classes=6)
-    elif args.task == 'regression':
-        criterion = torch.nn.SmoothL1Loss()
-        model = PandaNet(arch=args.arch, num_classes=1)
+    criterion = torch.nn.MSELoss()
 
+    model = PandaNet(arch=args.arch, num_classes=1)
     model.to("cuda")
 
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 60, 90], gamma=0.2)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 60, 90], gamma=0.1)
 
     """ Train the model """
     from datetime import datetime
@@ -173,6 +145,7 @@ def main():
     log_dir = os.path.join(configure.TRAINING_LOG_PATH,
                            log_prefix)
 
+    tb_writer = None
     if args.log:
         tb_writer = SummaryWriter(log_dir=log_dir)
 
@@ -182,16 +155,18 @@ def main():
 
     print(f'training started: {current_time}')
     for epoch in range(args.epochs):
-        train_loss, train_score = train(train_loader=train_loader,
-                                        model=model,
-                                        criterion=criterion,
-                                        optimizer=optimizer,
-                                        args=args)
+        train_loss, train_score = train(
+            dataloader=train_loader,
+            model=model,
+            criterion=criterion,
+            optimizer=optimizer,
+            args=args)
 
-        valid_loss, valid_score = valid(valid_loader=valid_loader,
-                                        model=model,
-                                        criterion=criterion,
-                                        args=args)
+        valid_loss, valid_score = valid(
+            dataloader=valid_loader,
+            model=model,
+            criterion=criterion,
+            args=args)
 
         learning_rate = scheduler.get_lr()[0]
         if args.log:
@@ -199,13 +174,13 @@ def main():
             tb_writer.add_scalar("train_loss", train_loss, epoch)
             tb_writer.add_scalar("train_qwk", train_score, epoch)
             tb_writer.add_scalar("valid_loss", valid_loss, epoch)
-            tb_writer.add_scalar("valid_score", valid_score, epoch)
+            tb_writer.add_scalar("valid_qwk", valid_score, epoch)
 
         if valid_score > best_score:
             best_score = valid_score
             torch.save(model.state_dict(), model_path)
             current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-            print(f"epoch: {epoch}, best score: {valid_score}, date: {current_time}")
+            print(f"epoch: {epoch}, best score: {best_score}, date: {current_time}")
 
         scheduler.step()
 
