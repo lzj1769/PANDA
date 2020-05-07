@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+
 from efficientnet import EfficientNet
 from senet import se_resnext50_32x4d, se_resnext101_32x4d
 from mish import Mish
@@ -35,8 +36,8 @@ class PandaNet(nn.Module):
             else:
                 self.base = EfficientNet.from_name(model_name=arch)
 
-            self.extract_features = self.base.extract_features
             self.nc = self.base._fc.in_features
+            self.extract_features = self.base.extract_features
 
         elif arch == 'se_resnext50_32x4d':
             if pretrained:
@@ -54,13 +55,21 @@ class PandaNet(nn.Module):
             self.nc = self.base.last_linear.in_features
             self.extract_features = self.base.features
 
-        self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
-                                   Flatten(),
-                                   nn.Linear(2 * self.nc, 512),
-                                   Mish(),
-                                   nn.BatchNorm1d(512),
-                                   nn.Dropout(0.2),
-                                   nn.Linear(512, num_classes))
+        self.logit1 = nn.Sequential(AdaptiveConcatPool2d(1),
+                                    Flatten(),
+                                    nn.Linear(2 * self.nc, 512),
+                                    Mish(),
+                                    nn.BatchNorm1d(512),
+                                    nn.Dropout(0.5),
+                                    nn.Linear(512, 1))
+
+        self.logit2 = nn.Sequential(AdaptiveConcatPool2d(1),
+                                    Flatten(),
+                                    nn.Linear(2 * self.nc, 512),
+                                    Mish(),
+                                    nn.BatchNorm1d(512),
+                                    nn.Dropout(0.5),
+                                    nn.Linear(512, 6))
 
     def forward(self, inputs):
         bs, num_tiles, c, h, w = inputs.size()
@@ -74,6 +83,7 @@ class PandaNet(nn.Module):
             .view(-1, shape[1], shape[2] * num_tiles, shape[3])
 
         # Pooling and final linear layer
-        x = self.logit(x)
+        x1 = self.logit1(x)
+        x2 = self.logit2(x)
 
-        return x
+        return x1, x2

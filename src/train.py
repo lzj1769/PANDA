@@ -46,7 +46,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def train(dataloader, model, criterion, optimizer):
+def train(dataloader, model, criterion1, criterion2, optimizer):
     model.train()
 
     train_loss = 0.0
@@ -55,14 +55,15 @@ def train(dataloader, model, criterion, optimizer):
         images = images.to("cuda")
         target = target.to("cuda")
 
-        output = model(images)
-        loss = criterion(output.view(-1), target.float())
+        output1, output2 = model(images)
+
+        loss = criterion1(output1.view(-1), target.float()) + criterion2(output2, target)
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
+        pred_isup = utils.pred_to_isup(output1.view(-1).detach().cpu().numpy())
 
         preds.append(pred_isup)
         train_labels.append(target.detach().cpu().numpy())
@@ -77,7 +78,7 @@ def train(dataloader, model, criterion, optimizer):
     return train_loss, score, cm
 
 
-def valid(dataloader, model, criterion, args):
+def valid(dataloader, model, criterion1, criterion2, args):
     model.eval()
 
     with torch.no_grad():
@@ -95,9 +96,11 @@ def valid(dataloader, model, criterion, args):
                                   images.transpose(-1, -2).flip(-2), images.transpose(-1, -2).flip(-1, -2)], 1)
             images = images.view(-1, args.num_tiles, 3, args.tile_size, args.tile_size)
 
-            output = model(images).view(bs, 8, -1).mean(1)
-            loss = criterion(output.view(-1), target.float())
-            pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
+            output1, output2 = model(images)
+            loss = criterion1(output1.view(bs, 8, -1).mean(1).view(-1), target.float()) + \
+                   criterion2(output2.view(bs, 8, -1).mean(1), target)
+
+            pred_isup = utils.pred_to_isup(output1.view(bs, 8, -1).mean(1).view(-1).detach().cpu().numpy())
 
             preds.append(pred_isup)
             valid_labels.append(target.detach().cpu().numpy())
@@ -129,7 +132,8 @@ def main():
         num_workers=args.num_workers)
 
     # define loss function (criterion) and optimizer
-    criterion = torch.nn.SmoothL1Loss()
+    criterion1 = torch.nn.SmoothL1Loss()
+    criterion2 = torch.nn.CrossEntropyLoss()
 
     model = PandaNet(arch=args.arch, num_classes=1)
     model.to("cuda")
@@ -160,13 +164,15 @@ def main():
         train_loss, train_score, train_cm = train(
             dataloader=train_loader,
             model=model,
-            criterion=criterion,
+            criterion1=criterion1,
+            criterion2=criterion2,
             optimizer=optimizer)
 
         valid_loss, valid_score, valid_cm = valid(
             dataloader=valid_loader,
             model=model,
-            criterion=criterion,
+            criterion1=criterion1,
+            criterion2=criterion2,
             args=args)
 
         learning_rate = scheduler.get_lr()[0]
@@ -178,11 +184,11 @@ def main():
             tb_writer.add_scalar("Score/valid", valid_score, epoch)
 
             # Log the confusion matrix as an image summary.
-            figure = utils.plot_confusion_matrix(train_cm, class_names=[0, 1, 2, 3, 4, 5])
+            figure = utils.plot_confusion_matrix(train_cm, class_names=[0, 1, 2, 3, 4, 5], score=train_score)
             cm_image = utils.plot_to_image(figure)
             tb_writer.add_image("Confusion Matrix train", cm_image, epoch)
 
-            figure = utils.plot_confusion_matrix(valid_cm, class_names=[0, 1, 2, 3, 4, 5])
+            figure = utils.plot_confusion_matrix(valid_cm, class_names=[0, 1, 2, 3, 4, 5], score=valid_score)
             cm_image = utils.plot_to_image(figure)
             tb_writer.add_image("Confusion Matrix valid", cm_image, epoch)
 

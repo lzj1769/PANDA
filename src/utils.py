@@ -86,7 +86,7 @@ def enhance_image(image, contrast=1, brightness=15):
     return img_enhanced
 
 
-def plot_confusion_matrix(cm, class_names):
+def plot_confusion_matrix(cm, class_names, score):
     """
     Returns a matplotlib figure containing the plotted confusion matrix.
 
@@ -96,7 +96,7 @@ def plot_confusion_matrix(cm, class_names):
     """
     figure = plt.figure(figsize=(8, 8))
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-    plt.title("Confusion matrix")
+    plt.title(f"Confusion matrix: {score}")
     plt.colorbar()
     tick_marks = np.arange(len(class_names))
     plt.xticks(tick_marks, class_names, rotation=45)

@@ -14,4 +14,4 @@ SPLIT_FOLDER = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/split"
 MODEL_PATH = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/model"
 
 # training log
-TRAINING_LOG_PATH = "/home/rs619065/kaggle/PANDA/log"
+TRAINING_LOG_PATH = "/home/rs619065/kaggle/PANDA/src/log"

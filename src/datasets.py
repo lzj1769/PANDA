@@ -12,8 +12,8 @@ from albumentations import (
 
 import configure
 
-MEAN = [0.64455969, 0.47587813, 0.72864011]
-STD = [0.39921443, 0.46409423, 0.4326094]
+MEAN = torch.tensor([0.64455969, 0.47587813, 0.72864011])
+STD = torch.tensor([0.39921443, 0.46409423, 0.4326094])
 
 
 class PandaDataset(Dataset):
@@ -37,6 +37,7 @@ class PandaDataset(Dataset):
 
         # split image
         image = torch.from_numpy(image / 255.0).float()
+        image = (image - MEAN) / STD
         image = image.permute(0, 3, 1, 2)
 
         return image, label
