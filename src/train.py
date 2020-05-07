@@ -3,7 +3,7 @@ import os
 import sys
 import numpy as np
 import warnings
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
@@ -46,7 +46,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def train(dataloader, model, criterion, optimizer, args):
+def train(dataloader, model, criterion, optimizer):
     model.train()
 
     train_loss = 0.0
@@ -72,7 +72,9 @@ def train(dataloader, model, criterion, optimizer, args):
     train_labels = np.concatenate(train_labels)
     score = utils.quadratic_weighted_kappa(train_labels, preds)
 
-    return train_loss, score
+    cm = confusion_matrix(train_labels, preds)
+
+    return train_loss, score, cm
 
 
 def valid(dataloader, model, criterion, args):
@@ -104,10 +106,10 @@ def valid(dataloader, model, criterion, args):
 
         preds = np.concatenate(preds)
         valid_labels = np.concatenate(valid_labels)
-
         score = utils.quadratic_weighted_kappa(valid_labels, preds)
+        cm = confusion_matrix(valid_labels, preds)
 
-        return valid_loss, score
+        return valid_loss, score, cm
 
 
 def main():
@@ -127,7 +129,7 @@ def main():
         num_workers=args.num_workers)
 
     # define loss function (criterion) and optimizer
-    criterion = torch.nn.MSELoss()
+    criterion = torch.nn.SmoothL1Loss()
 
     model = PandaNet(arch=args.arch, num_classes=1)
     model.to("cuda")
@@ -136,7 +138,7 @@ def main():
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 60, 90], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 60, 90], gamma=0.5)
 
     """ Train the model """
     from datetime import datetime
@@ -155,14 +157,13 @@ def main():
 
     print(f'training started: {current_time}')
     for epoch in range(args.epochs):
-        train_loss, train_score = train(
+        train_loss, train_score, train_cm = train(
             dataloader=train_loader,
             model=model,
             criterion=criterion,
-            optimizer=optimizer,
-            args=args)
+            optimizer=optimizer)
 
-        valid_loss, valid_score = valid(
+        valid_loss, valid_score, valid_cm = valid(
             dataloader=valid_loader,
             model=model,
             criterion=criterion,
@@ -171,10 +172,19 @@ def main():
         learning_rate = scheduler.get_lr()[0]
         if args.log:
             tb_writer.add_scalar("learning_rate", learning_rate, epoch)
-            tb_writer.add_scalar("train_loss", train_loss, epoch)
-            tb_writer.add_scalar("train_qwk", train_score, epoch)
-            tb_writer.add_scalar("valid_loss", valid_loss, epoch)
-            tb_writer.add_scalar("valid_qwk", valid_score, epoch)
+            tb_writer.add_scalar("Loss/train", train_loss, epoch)
+            tb_writer.add_scalar("Loss/valid", valid_loss, epoch)
+            tb_writer.add_scalar("Score/train", train_score, epoch)
+            tb_writer.add_scalar("Score/valid", valid_score, epoch)
+
+            # Log the confusion matrix as an image summary.
+            figure = utils.plot_confusion_matrix(train_cm, class_names=[0, 1, 2, 3, 4, 5])
+            cm_image = utils.plot_to_image(figure)
+            tb_writer.add_image("Confusion Matrix train", cm_image, epoch)
+
+            figure = utils.plot_confusion_matrix(valid_cm, class_names=[0, 1, 2, 3, 4, 5])
+            cm_image = utils.plot_to_image(figure)
+            tb_writer.add_image("Confusion Matrix valid", cm_image, epoch)
 
         if valid_score > best_score:
             best_score = valid_score

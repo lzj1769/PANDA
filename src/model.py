@@ -59,7 +59,7 @@ class PandaNet(nn.Module):
                                    nn.Linear(2 * self.nc, 512),
                                    Mish(),
                                    nn.BatchNorm1d(512),
-                                   nn.Dropout(0.5),
+                                   nn.Dropout(0.2),
                                    nn.Linear(512, num_classes))
 
     def forward(self, inputs):

@@ -6,13 +6,10 @@ import configure
 df = pd.read_csv(configure.TRAIN_DF)
 
 # fix mislabelled information
-df.replace(df.loc[7273]['isup_grade'], 3, inplace=True)
+# df.replace(df.loc[7273]['isup_grade'], 3, inplace=True)
 
 # change negative to '0+0'
 df['gleason_score'] = df['gleason_score'].apply(lambda x: "0+0" if x == "negative" else x)
-gleason_score = df['gleason_score'].str.split("+", expand=True)
-df['gleason_score_1'] = gleason_score[0]
-df['gleason_score_2'] = gleason_score[1]
 data_provider = {'karolinska': 0, 'radboud': 1}
 
 df = df.replace({'data_provider': data_provider})

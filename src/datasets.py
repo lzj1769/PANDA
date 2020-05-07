@@ -12,8 +12,9 @@ from albumentations import (
 
 import configure
 
-MEAN = [0.64947904, 0.48172169, 0.73437793]
-STD = [0.39723675, 0.46513723, 0.42346069]
+MEAN = [0.64455969, 0.47587813, 0.72864011]
+STD = [0.39921443, 0.46409423, 0.4326094]
+
 
 class PandaDataset(Dataset):
     def __init__(self, df, data, transform):
@@ -35,26 +36,10 @@ class PandaDataset(Dataset):
                 image[i] = self.transform(image=image[i])['image']
 
         # split image
-        image = normalize(image, mean=MEAN, std=STD)
-        image = torch.from_numpy(image).float()
+        image = torch.from_numpy(image / 255.0).float()
         image = image.permute(0, 3, 1, 2)
 
         return image, label
-
-
-def normalize(img, mean, std, max_pixel_value=255.0):
-    mean = np.array(mean, dtype=np.float32)
-    mean *= max_pixel_value
-
-    std = np.array(std, dtype=np.float32)
-    std *= max_pixel_value
-
-    denominator = np.reciprocal(std, dtype=np.float32)
-
-    img = img.astype(np.float32)
-    img -= mean
-    img *= denominator
-    return img
 
 
 def get_transforms():
