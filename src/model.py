@@ -57,6 +57,8 @@ class PandaNet(nn.Module):
 
         self.logit1 = nn.Sequential(AdaptiveConcatPool2d(1),
                                     Flatten(),
+                                    nn.BatchNorm1d(2 * self.nc),
+                                    nn.Dropout(0.5)
                                     nn.Linear(2 * self.nc, 512),
                                     Mish(),
                                     nn.BatchNorm1d(512),
@@ -65,6 +67,8 @@ class PandaNet(nn.Module):
 
         self.logit2 = nn.Sequential(AdaptiveConcatPool2d(1),
                                     Flatten(),
+                                    nn.BatchNorm1d(2 * self.nc),
+                                    nn.Dropout(0.5)
                                     nn.Linear(2 * self.nc, 512),
                                     Mish(),
                                     nn.BatchNorm1d(512),
