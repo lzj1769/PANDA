@@ -24,14 +24,17 @@ def parse_args():
                         help='model architecture (default: se_resnext50_32x4d)')
     parser.add_argument('--pretrained', dest='pretrained', action='store_true',
                         help='use pre-trained model')
+    parser.add_argument("--level", default=1, type=int,
+                        help="which level to use, can only be 0, 1, 2")
+    parser.add_argument("--tile_size", default=128, type=int,
+                        help="size of tile, available are 128 and 256")
+    parser.add_argument("--num_tiles", default=12, type=int,
+                        help="how many tiles for each image. Default: 12")
     parser.add_argument("--fold", type=int, default=0)
-    parser.add_argument("--task", type=str, default='regression')
     parser.add_argument("--num_workers", default=24, type=int,
                         help="How many sub-processes to use for data.")
     parser.add_argument("--batch_size", default=16, type=int,
                         help="Batch size per GPU/CPU for training.")
-    parser.add_argument("--tile_size", default=128, type=int)
-    parser.add_argument("--num_tiles", default=12, type=int)
     parser.add_argument("--learning_rate", default=3e-4, type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument("--weight_decay", default=1e-04, type=float,
@@ -55,15 +58,15 @@ def train(dataloader, model, criterion, optimizer):
         images = images.to("cuda")
         target = target.to("cuda")
 
-        output1, output2 = model(images)
+        output = model(images)
 
-        loss = criterion(output1.view(-1), target.float())
+        loss = criterion(output.view(-1), target.float())
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        pred_isup = utils.pred_to_isup(output1.view(-1).detach().cpu().numpy())
+        pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
 
         preds.append(pred_isup)
         train_labels.append(target.detach().cpu().numpy())
@@ -89,6 +92,7 @@ def valid(dataloader, model, criterion, args):
 
             images = images.to("cuda")
             target = target.to("cuda")
+
             # dihedral TTA
             images = torch.stack([images, images.flip(-1),
                                   images.flip(-2), images.flip(-1, -2),
@@ -125,7 +129,11 @@ def main():
         print("cuda is not available")
         exit(0)
 
+    filename = f"train_images_level_{args.level}_{args.tile_size}_{args.num_tiles}.npy"
+    data = np.load(os.path.join(configure.DATA_PATH, filename), allow_pickle=True)
+
     train_loader, valid_loader = datasets.get_dataloader(
+        data=data,
         fold=args.fold,
         batch_size=args.batch_size,
         num_workers=args.num_workers)
@@ -145,7 +153,7 @@ def main():
     """ Train the model """
     from datetime import datetime
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    log_prefix = f'{current_time}_{args.arch}_{args.task}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}'
+    log_prefix = f'{current_time}_{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}'
     log_dir = os.path.join(configure.TRAINING_LOG_PATH,
                            log_prefix)
 
@@ -155,7 +163,7 @@ def main():
 
     best_score = 0.0
     model_path = os.path.join(configure.MODEL_PATH,
-                              f'{args.arch}_{args.task}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}.pth')
+                              f'{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}.pth')
 
     print(f'training started: {current_time}')
     for epoch in range(args.epochs):

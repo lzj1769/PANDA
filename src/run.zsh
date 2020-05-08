@@ -8,10 +8,10 @@ export CUDA_VISIBLE_DEVICES=0,1
 
 python train.py \
 --arch $1 \
---fold $2 \
---batch_size $3 \
---tile_size $4 \
---num_tile $5 \
---task $6 \
+--level $2 \
+--tile_size $3 \
+--num_tile $4 \
+--fold $5 \
+--batch_size $6 \
 --pretrained \
 --log

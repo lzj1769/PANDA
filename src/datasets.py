@@ -30,6 +30,7 @@ class PandaDataset(Dataset):
         image = self.data.item().get(image_id)
 
         label = self.df['isup_grade'].values[idx]
+        # smooth_label = np.random.normal(loc=label, scale=0.2)
 
         if self.transform:
             for i in range(image.shape[0]):
@@ -67,9 +68,7 @@ def get_transforms():
     ])
 
 
-def get_dataloader(fold, batch_size, num_workers):
-    data = np.load(configure.TRAINING_IMAGE_NPY, allow_pickle=True)
-
+def get_dataloader(data, fold, batch_size, num_workers):
     df_train = pd.read_csv(os.path.join(configure.SPLIT_FOLDER, f"fold_{fold}_train.csv"))
     train_dataset = PandaDataset(df=df_train,
                                  data=data,
