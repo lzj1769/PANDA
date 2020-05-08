@@ -55,25 +55,15 @@ class PandaNet(nn.Module):
             self.nc = self.base.last_linear.in_features
             self.extract_features = self.base.features
 
-        self.logit1 = nn.Sequential(AdaptiveConcatPool2d(1),
-                                    Flatten(),
-                                    nn.BatchNorm1d(2 * self.nc),
-                                    nn.Dropout(0.5)
-                                    nn.Linear(2 * self.nc, 512),
-                                    Mish(),
-                                    nn.BatchNorm1d(512),
-                                    nn.Dropout(0.5),
-                                    nn.Linear(512, 1))
-
-        self.logit2 = nn.Sequential(AdaptiveConcatPool2d(1),
-                                    Flatten(),
-                                    nn.BatchNorm1d(2 * self.nc),
-                                    nn.Dropout(0.5)
-                                    nn.Linear(2 * self.nc, 512),
-                                    Mish(),
-                                    nn.BatchNorm1d(512),
-                                    nn.Dropout(0.5),
-                                    nn.Linear(512, 6))
+        self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
+                                   Flatten(),
+                                   nn.BatchNorm1d(2 * self.nc),
+                                   nn.Dropout(0.5),
+                                   nn.Linear(2 * self.nc, 512),
+                                   Mish(),
+                                   nn.BatchNorm1d(512),
+                                   nn.Dropout(0.5),
+                                   nn.Linear(512, 1))
 
     def forward(self, inputs):
         bs, num_tiles, c, h, w = inputs.size()
@@ -87,7 +77,6 @@ class PandaNet(nn.Module):
             .view(-1, shape[1], shape[2] * num_tiles, shape[3])
 
         # Pooling and final linear layer
-        x1 = self.logit1(x)
-        x2 = self.logit2(x)
+        x = self.logit(x)
 
-        return x1, x2
+        return x

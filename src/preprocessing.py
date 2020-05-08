@@ -2,7 +2,19 @@ import numpy as np
 import pandas as pd
 import configure
 import skimage.io
+import os
 import cv2
+import argparse
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    # Required parameters
+    parser.add_argument("--level", type=int, default=0)
+    parser.add_argument("--tile_size", default=128, type=int)
+    parser.add_argument("--num_tiles", default=12, type=int)
+    return parser.parse_args()
 
 
 def crop_white(image: np.ndarray) -> np.ndarray:
@@ -40,6 +52,8 @@ def tile(img, tile_size=128, num_tiles=12):
 
 
 if __name__ == "__main__":
+    args = parse_args()
+
     df = pd.read_csv(configure.TRAIN_DF)
 
     images = dict()
@@ -49,17 +63,22 @@ if __name__ == "__main__":
             print(f"processed {i} images...")
 
         file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
-        image = skimage.io.MultiImage(file_path)[-2]
+        image = skimage.io.MultiImage(file_path)[args.level]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = crop_white(image)
-        images[image_id] = tile(image)
+        images[image_id] = tile(image, tile_size=args.tile_size)
 
         mean.append((images[image_id] / 255.0).reshape(-1, 3).mean(0))
         std.append(((images[image_id] / 255.0) ** 2).reshape(-1, 3).mean(0))
 
-    np.save(configure.TRAINING_IMAGE_NPY, images)
-
     # image stats
     img_avr = np.array(mean).mean(0)
     img_std = np.sqrt(np.array(std).mean(0) - img_avr ** 2)
+    print(f'level: {args.level}, tile size: {args.tile_size}')
     print('mean:', img_avr, ', std:', np.sqrt(img_std))
+
+    images['mean'] = img_avr
+    images['std'] = img_std
+
+    filename = f"train_images_level_{args.level}_{args.tile_size}_{args.num_tiles}.npy"
+    np.save(os.path.join(configure.DATA_PATH, filename), images)

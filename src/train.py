@@ -46,7 +46,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def train(dataloader, model, criterion1, criterion2, optimizer):
+def train(dataloader, model, criterion, optimizer):
     model.train()
 
     train_loss = 0.0
@@ -57,7 +57,7 @@ def train(dataloader, model, criterion1, criterion2, optimizer):
 
         output1, output2 = model(images)
 
-        loss = criterion1(output1.view(-1), target.float()) + criterion2(output2, target)
+        loss = criterion(output1.view(-1), target.float())
 
         optimizer.zero_grad()
         loss.backward()
@@ -78,7 +78,7 @@ def train(dataloader, model, criterion1, criterion2, optimizer):
     return train_loss, score, cm
 
 
-def valid(dataloader, model, criterion1, criterion2, args):
+def valid(dataloader, model, criterion, args):
     model.eval()
 
     with torch.no_grad():
@@ -96,11 +96,10 @@ def valid(dataloader, model, criterion1, criterion2, args):
                                   images.transpose(-1, -2).flip(-2), images.transpose(-1, -2).flip(-1, -2)], 1)
             images = images.view(-1, args.num_tiles, 3, args.tile_size, args.tile_size)
 
-            output1, output2 = model(images)
-            loss = criterion1(output1.view(bs, 8, -1).mean(1).view(-1), target.float()) + \
-                   criterion2(output2.view(bs, 8, -1).mean(1), target)
+            output = model(images)
+            loss = criterion(output.view(bs, 8, -1).mean(1).view(-1), target.float())
 
-            pred_isup = utils.pred_to_isup(output1.view(bs, 8, -1).mean(1).view(-1).detach().cpu().numpy())
+            pred_isup = utils.pred_to_isup(output.view(bs, 8, -1).mean(1).view(-1).detach().cpu().numpy())
 
             preds.append(pred_isup)
             valid_labels.append(target.detach().cpu().numpy())
@@ -132,8 +131,7 @@ def main():
         num_workers=args.num_workers)
 
     # define loss function (criterion) and optimizer
-    criterion1 = torch.nn.SmoothL1Loss()
-    criterion2 = torch.nn.CrossEntropyLoss()
+    criterion = torch.nn.SmoothL1Loss()
 
     model = PandaNet(arch=args.arch, num_classes=1)
     model.to("cuda")
@@ -164,15 +162,13 @@ def main():
         train_loss, train_score, train_cm = train(
             dataloader=train_loader,
             model=model,
-            criterion1=criterion1,
-            criterion2=criterion2,
+            criterion=criterion,
             optimizer=optimizer)
 
         valid_loss, valid_score, valid_cm = valid(
             dataloader=valid_loader,
             model=model,
-            criterion1=criterion1,
-            criterion2=criterion2,
+            criterion=criterion,
             args=args)
 
         learning_rate = scheduler.get_lr()[0]

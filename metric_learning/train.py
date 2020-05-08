@@ -65,9 +65,15 @@ def train(dataloader, model, metric, criterion, optimizer):
 
         train_loss += loss.item() / len(dataloader)
 
-    print(train_loss)
-
     return train_loss
+
+
+def valid(train_dataloader, valid_dataloader, model):
+    model.eval()
+
+    with torch.no_grad():
+        # get embedding for training data
+        for images, labels in train_dataloader:
 
 
 def main():

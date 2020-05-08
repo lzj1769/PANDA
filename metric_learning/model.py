@@ -59,8 +59,9 @@ class PandaNet(nn.Module):
 
         self.output = nn.Sequential(AdaptiveConcatPool2d(1),
                                     Flatten(),
-                                    nn.Linear(2*self.nc, embedding_size),
-                                    nn.BatchNorm1d(embedding_size))
+                                    nn.BatchNorm1d(2 * self.nc),
+                                    nn.Dropout(0.5),
+                                    nn.Linear(2 * self.nc, 512))
 
     def forward(self, inputs):
         bs, num_tiles, c, h, w = inputs.size()
@@ -90,7 +91,7 @@ class ArcMarginProduct(nn.Module):
         """
 
     def __init__(self, in_features, out_features, s=30.0, m=0.50, easy_margin=False):
-        super(ArcMarginProduct, self).__init__()
+        super().__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.s = s

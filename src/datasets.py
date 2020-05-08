@@ -37,7 +37,6 @@ class PandaDataset(Dataset):
 
         # split image
         image = torch.from_numpy(image / 255.0).float()
-        image = (image - MEAN) / STD
         image = image.permute(0, 3, 1, 2)
 
         return image, label
