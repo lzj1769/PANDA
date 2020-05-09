@@ -1,7 +1,7 @@
 import subprocess
 
 model_list = ['se_resnext50_32x4d']
-fold_list = [0]
+fold_list = [1, 2, 3, 4]
 
 batch_size = {'se_resnext50_32x4d': 24,
               'se_resnext101_32x4d': 16,
@@ -23,5 +23,5 @@ for model in model_list:
                         "-A", "rwth0455",
                         "--gres", "gpu:1",
                         "run.zsh", model,
-                        level, tile_size, num_tiles,
-                        fold, batch_size[model]])
+                        str(level), str(tile_size), str(num_tiles),
+                        str(fold), str(batch_size[model])])

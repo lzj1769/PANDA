@@ -204,6 +204,9 @@ def main():
 
         scheduler.step()
 
+    if args.log:
+        tb_writer.close()
+
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
     print(f'training finished: {current_time}')
 

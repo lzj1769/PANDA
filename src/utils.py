@@ -24,17 +24,6 @@ def seed_torch(seed):
     torch.backends.cudnn.deterministic = True
 
 
-def crop_white(image: np.ndarray) -> np.ndarray:
-    assert image.shape[2] == 3
-    assert image.dtype == np.uint8
-    ys, = (image.min((1, 2)) != 255).nonzero()
-    xs, = (image.min(0).min(1) != 255).nonzero()
-    if len(xs) == 0 or len(ys) == 0:
-        return image
-
-    return image[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
-
-
 def pred_to_isup(pred):
     threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
     pred[pred < threshold[0]] = 0
@@ -46,44 +35,6 @@ def pred_to_isup(pred):
 
     return pred
 
-
-def tile(img, tile_size=128, num_tiles=12):
-    shape = img.shape
-    # image = Image.fromarray(img)
-    # image.save("/home/rs619065/raw.png")
-
-    pad0, pad1 = (tile_size - shape[0] % tile_size) % tile_size, \
-                 (tile_size - shape[1] % tile_size) % tile_size
-
-    img = np.pad(img, [[pad0 // 2, pad0 - pad0 // 2],
-                       [pad1 // 2, pad1 - pad1 // 2],
-                       [0, 0]], constant_values=255, mode='constant')
-    # image = Image.fromarray(img)
-    # image.save("/home/rs619065/raw_pad.png")
-    img = img.reshape(img.shape[0] // tile_size, tile_size,
-                      img.shape[1] // tile_size, tile_size, 3)
-    img = img.transpose(0, 2, 1, 3, 4).reshape(-1, tile_size, tile_size, 3)
-    if len(img) < num_tiles:
-        img = np.pad(img, [[0, num_tiles - len(img)],
-                           [0, 0], [0, 0], [0, 0]],
-                     constant_values=255, mode='constant')
-
-    idxs = np.argsort(img.reshape(img.shape[0], -1).sum(-1))[:num_tiles]
-    img = img[idxs]
-
-    # for i in range(img.shape[0]):
-    #    image = Image.fromarray(img[i])
-    #    image.save(f"/home/rs619065/raw_{i}.png")
-
-    return img
-
-
-def enhance_image(image, contrast=1, brightness=15):
-    """
-    Enhance constrast and brightness of images
-    """
-    img_enhanced = cv2.addWeighted(image, contrast, image, 0, brightness)
-    return img_enhanced
 
 
 def plot_confusion_matrix(cm, class_names, score):
