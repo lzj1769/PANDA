@@ -1,6 +1,9 @@
 import os
 import numpy as np
-import cv2
+import pandas as pd
+from scipy.optimize import minimize
+import scipy
+from functools import partial
 import random
 from sklearn.metrics import cohen_kappa_score
 import torch
@@ -8,10 +11,33 @@ import matplotlib.pyplot as plt
 import io
 from itertools import product
 import tensorflow as tf
+from numba import jit
 
 
-def quadratic_weighted_kappa(y_hat, y):
-    return cohen_kappa_score(y_hat, y, weights='quadratic')
+@jit
+def fast_qwk(a1, a2, max_rat=5):
+    assert (len(a1) == len(a2))
+    a1 = np.asarray(a1, dtype=int)
+    a2 = np.asarray(a2, dtype=int)
+
+    hist1 = np.zeros((max_rat + 1,))
+    hist2 = np.zeros((max_rat + 1,))
+
+    o = 0
+    for k in range(a1.shape[0]):
+        i, j = a1[k], a2[k]
+        hist1[i] += 1
+        hist2[j] += 1
+        o += (i - j) * (i - j)
+
+    e = 0
+    for i in range(max_rat + 1):
+        for j in range(max_rat + 1):
+            e += hist1[i] * hist2[j] * (i - j) * (i - j)
+
+    e = e / a1.shape[0]
+
+    return 1 - o / e
 
 
 def seed_torch(seed):
@@ -24,8 +50,10 @@ def seed_torch(seed):
     torch.backends.cudnn.deterministic = True
 
 
-def pred_to_isup(pred):
-    threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
+def pred_to_isup(pred, threshold=None):
+    if threshold is None:
+        threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
+
     pred[pred < threshold[0]] = 0
     pred[(pred >= threshold[0]) & (pred < threshold[1])] = 1
     pred[(pred >= threshold[1]) & (pred < threshold[2])] = 2
@@ -36,15 +64,22 @@ def pred_to_isup(pred):
     return pred
 
 
+def kappa_loss(y_true, y_pred, threshold):
+    preds = pred_to_isup(y_pred, threshold=threshold)
+    return fast_qwk(y_true, preds)
+
+
+def find_threshold(y_true, y_pred):
+    loss_partial = partial(kappa_loss, X=y_pred, y_true=y_true)
+    initial_threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
+    threshold = minimize(loss_partial,
+                         initial_threshold,
+                         method='nelder-mead')
+
+    return threshold
+
 
 def plot_confusion_matrix(cm, class_names, score):
-    """
-    Returns a matplotlib figure containing the plotted confusion matrix.
-
-    Args:
-      cm (array, shape = [n, n]): a confusion matrix of integer classes
-      class_names (array, shape = [n]): String names of the integer classes
-    """
     figure = plt.figure(figsize=(8, 8))
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
     plt.title(f"Confusion matrix: {score}")
@@ -85,4 +120,3 @@ def plot_to_image(figure):
     image = torch.from_numpy(image.numpy()).permute(2, 0, 1)
 
     return image
-

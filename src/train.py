@@ -74,7 +74,7 @@ def train(dataloader, model, criterion, optimizer):
 
     preds = np.concatenate(preds)
     train_labels = np.concatenate(train_labels)
-    score = utils.quadratic_weighted_kappa(train_labels, preds)
+    score = utils.fast_qwk(train_labels, preds)
 
     cm = confusion_matrix(train_labels, preds)
 
@@ -100,19 +100,18 @@ def valid(dataloader, model, criterion, args):
                                   images.transpose(-1, -2).flip(-2), images.transpose(-1, -2).flip(-1, -2)], 1)
             images = images.view(-1, args.num_tiles, 3, args.tile_size, args.tile_size)
 
-            output = model(images)
-            loss = criterion(output.view(bs, 8, -1).mean(1).view(-1), target.float())
+            output = model(images).view(bs, 8, -1).mean(1).view(-1)
+            loss = criterion(output, target.float())
 
-            pred_isup = utils.pred_to_isup(output.view(bs, 8, -1).mean(1).view(-1).detach().cpu().numpy())
-
+            pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
             preds.append(pred_isup)
-            valid_labels.append(target.detach().cpu().numpy())
 
+            valid_labels.append(target.detach().cpu().numpy())
             valid_loss += loss.item() / len(dataloader)
 
         preds = np.concatenate(preds)
         valid_labels = np.concatenate(valid_labels)
-        score = utils.quadratic_weighted_kappa(valid_labels, preds)
+        score = utils.fast_qwk(valid_labels, preds)
         cm = confusion_matrix(valid_labels, preds)
 
         return valid_loss, score, cm

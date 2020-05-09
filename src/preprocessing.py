@@ -351,16 +351,16 @@ if __name__ == "__main__":
         for i in range(16):
             images[image_id][i] = cv2.resize(image[i], (128, 128))
 
-        # mean.append((images[image_id] / 255.0).reshape(-1, 3).mean(0))
-        # std.append(((images[image_id] / 255.0) ** 2).reshape(-1, 3).mean(0))
+        mean.append((images[image_id] / 255.0).reshape(-1, 3).mean(0))
+        std.append(((images[image_id] / 255.0) ** 2).reshape(-1, 3).mean(0))
 
     # image stats
-    # img_avr = np.array(mean).mean(0)
-    # img_std = np.sqrt(np.array(std).mean(0) - img_avr ** 2)
-    # print('mean:', img_avr, ', std:', np.sqrt(img_std))
+    img_avr = np.array(mean).mean(0)
+    img_std = np.sqrt(np.array(std).mean(0) - img_avr ** 2)
+    print('mean:', img_avr, ', std:', np.sqrt(img_std))
 
-    # images['mean'] = img_avr
-    # images['std'] = img_std
+    images['mean'] = img_avr
+    images['std'] = img_std
 
     np.save(os.path.join(configure.DATA_PATH, "train_images_level_1_128_16"),
             images)

@@ -5,7 +5,8 @@ fold_list = [1, 2, 3, 4]
 
 batch_size = {'se_resnext50_32x4d': 24,
               'se_resnext101_32x4d': 16,
-              'efficientnet-b4': 12}
+              'efficientnet-b4': 12,
+              'efficientnet-b5': 8}
 
 level = 1
 tile_size = 128

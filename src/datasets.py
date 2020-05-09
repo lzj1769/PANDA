@@ -29,9 +29,6 @@ class PandaDataset(Dataset):
         image_id = self.df['image_id'].values[idx]
         image = self.data.item().get(image_id)
 
-        print(type(image))
-        exit(0)
-
         label = self.df['isup_grade'].values[idx]
         # smooth_label = np.random.normal(loc=label, scale=0.2)
 
