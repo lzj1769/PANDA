@@ -3,10 +3,10 @@ TRAIN_IMAGE_PATH = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/tr
 TRAIN_MASKS_PATH = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/train_label_masks"
 TRAIN_DF = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/train.csv"
 DATA_PATH = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment"
-TRAINING_IMAGE_NPY = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/train_images.npy"
 
 # processed image by detection of tissue
-TISSUE_DETECTION_TRAIN_IMAGE_PATH = '/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/tissue_detection_train_images'
+TRAINING_IMAGE_NPY = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/train_images.npy"
+TRAIN_IMAGE_PNG_PATH = '/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/train_images_png'
 
 # 5-fold split data
 SPLIT_FOLDER = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/split"

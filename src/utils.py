@@ -64,17 +64,19 @@ def pred_to_isup(pred, threshold=None):
     return pred
 
 
-def kappa_loss(y_true, y_pred, threshold):
-    preds = pred_to_isup(y_pred, threshold=threshold)
-    return fast_qwk(y_true, preds)
+def kappa_loss(coef, X, y):
+    preds = pd.cut(X, [-np.inf] + list(np.sort(coef)) + [np.inf],
+                   labels=[0, 1, 2, 3, 4, 5])
+
+    return -fast_qwk(y, preds)
 
 
 def find_threshold(y_true, y_pred):
-    loss_partial = partial(kappa_loss, X=y_pred, y_true=y_true)
+    loss_partial = partial(kappa_loss, X=y_pred, y=y_true)
     initial_threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
     threshold = minimize(loss_partial,
                          initial_threshold,
-                         method='nelder-mead')
+                         method='nelder-mead')['x']
 
     return threshold
 
@@ -120,3 +122,13 @@ def plot_to_image(figure):
     image = torch.from_numpy(image.numpy()).permute(2, 0, 1)
 
     return image
+
+
+if __name__ == "__main__":
+    y_true = [1, 2, 3, 3, 4, 5, 0, 1, 2, 3, 4, 5]
+    y_pred = np.array([-10, 2.3, 4.3, 4.5, 2.4, 4.4, 5.5, 2.7, 0.1, 0.3, 0.4, 3.7])
+
+    score, threshold = find_threshold(y_true=y_true, y_pred=y_pred)
+
+    print(score)
+    print(threshold)

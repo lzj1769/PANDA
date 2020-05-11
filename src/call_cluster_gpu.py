@@ -1,15 +1,15 @@
 import subprocess
 
 model_list = ['se_resnext50_32x4d']
-fold_list = [1, 2, 3, 4]
+fold_list = [0, 1, 2, 3, 4]
 
-batch_size = {'se_resnext50_32x4d': 24,
+batch_size = {'se_resnext50_32x4d': 8,
               'se_resnext101_32x4d': 16,
               'efficientnet-b4': 12,
               'efficientnet-b5': 8}
 
 level = 1
-tile_size = 128
+tile_size = 256
 num_tiles = 12
 
 for model in model_list:

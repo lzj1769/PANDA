@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import numpy as np
+import pandas as pd
 import warnings
 from sklearn.metrics import confusion_matrix
 import torch
@@ -28,7 +29,7 @@ def parse_args():
                         help="which level to use, can only be 0, 1, 2")
     parser.add_argument("--tile_size", default=128, type=int,
                         help="size of tile, available are 128 and 256")
-    parser.add_argument("--num_tiles", default=12, type=int,
+    parser.add_argument("--num_tiles", default=16, type=int,
                         help="how many tiles for each image. Default: 12")
     parser.add_argument("--fold", type=int, default=0)
     parser.add_argument("--num_workers", default=24, type=int,
@@ -66,22 +67,27 @@ def train(dataloader, model, criterion, optimizer):
         loss.backward()
         optimizer.step()
 
-        pred_isup = utils.pred_to_isup(output.view(-1).detach().cpu().numpy())
-
-        preds.append(pred_isup)
+        preds.append(output.view(-1).detach().cpu().numpy())
         train_labels.append(target.detach().cpu().numpy())
         train_loss += loss.item() / len(dataloader)
 
     preds = np.concatenate(preds)
     train_labels = np.concatenate(train_labels)
-    score = utils.fast_qwk(train_labels, preds)
 
-    cm = confusion_matrix(train_labels, preds)
+    # threshold = utils.find_threshold(y_true=train_labels,
+    #                                 y_pred=preds)
 
-    return train_loss, score, cm
+    threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
+
+    isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf],
+                        labels=[0, 1, 2, 3, 4, 5])
+    score = utils.fast_qwk(isup_preds, train_labels)
+    cm = confusion_matrix(train_labels, isup_preds)
+
+    return train_loss, score, cm, threshold
 
 
-def valid(dataloader, model, criterion, args):
+def valid(dataloader, model, criterion, threshold, args):
     model.eval()
 
     with torch.no_grad():
@@ -103,16 +109,18 @@ def valid(dataloader, model, criterion, args):
             output = model(images).view(bs, 8, -1).mean(1).view(-1)
             loss = criterion(output, target.float())
 
-            pred_isup = utils.pred_to_isup(output.detach().cpu().numpy())
-            preds.append(pred_isup)
-
+            preds.append(output.detach().cpu().numpy())
             valid_labels.append(target.detach().cpu().numpy())
             valid_loss += loss.item() / len(dataloader)
 
         preds = np.concatenate(preds)
         valid_labels = np.concatenate(valid_labels)
-        score = utils.fast_qwk(valid_labels, preds)
-        cm = confusion_matrix(valid_labels, preds)
+
+        isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf],
+                            labels=[0, 1, 2, 3, 4, 5])
+        score = utils.fast_qwk(isup_preds, valid_labels)
+
+        cm = confusion_matrix(valid_labels, isup_preds)
 
         return valid_loss, score, cm
 
@@ -166,7 +174,7 @@ def main():
 
     print(f'training started: {current_time}')
     for epoch in range(args.epochs):
-        train_loss, train_score, train_cm = train(
+        train_loss, train_score, train_cm, threshold = train(
             dataloader=train_loader,
             model=model,
             criterion=criterion,
@@ -176,6 +184,7 @@ def main():
             dataloader=valid_loader,
             model=model,
             criterion=criterion,
+            threshold=threshold,
             args=args)
 
         learning_rate = scheduler.get_lr()[0]
@@ -197,17 +206,24 @@ def main():
 
         if valid_score > best_score:
             best_score = valid_score
-            torch.save(model.state_dict(), model_path)
-            current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-            print(f"epoch: {epoch}, best score: {best_score}, date: {current_time}")
+            state = {'state_dict': model.state_dict(),
+                     'threshold': threshold,
+                     'train_score': train_score,
+                     'valid_score': valid_score}
+            torch.save(state, model_path)
+
+        current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+        print(f"epoch:{epoch:02d}, "
+              f"train:{train_score:0.3f}, valid:{valid_score:0.3f}, "
+              f"best:{best_score:0.3f}, date:{current_time}")
 
         scheduler.step()
 
-    if args.log:
-        tb_writer.close()
-
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
     print(f'training finished: {current_time}')
+
+    if args.log:
+        tb_writer.close()
 
 
 if __name__ == "__main__":
