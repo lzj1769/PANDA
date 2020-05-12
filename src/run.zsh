@@ -12,6 +12,6 @@ python train.py \
 --tile_size $3 \
 --num_tile $4 \
 --fold $5 \
---batch_size $6 \
+--per_gpu_batch_size $6 \
 --pretrained \
 --log

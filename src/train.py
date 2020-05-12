@@ -35,7 +35,7 @@ def parse_args():
     parser.add_argument("--fold", type=int, default=0)
     parser.add_argument("--num_workers", default=4, type=int,
                         help="How many sub-processes to use for data.")
-    parser.add_argument("--batch_size", default=6, type=int,
+    parser.add_argument("--per_gpu_batch_size", default=6, type=int,
                         help="Batch size per GPU/CPU for training.")
     parser.add_argument("--learning_rate", default=3e-4, type=float,
                         help="The initial learning rate for Adam.")
@@ -54,14 +54,14 @@ def parse_args():
     return parser.parse_args()
 
 
-def train(dataloader, model, criterion, optimizer):
+def train(dataloader, model, criterion, optimizer, args):
     model.train()
 
     train_loss = 0.0
     preds, train_labels = [], []
     for i, (images, target) in enumerate(dataloader):
-        images = images.to("cuda")
-        target = target.to("cuda")
+        images = images.to(args.device)
+        target = target.to(args.device)
 
         output = model(images)
 
@@ -101,8 +101,8 @@ def valid(dataloader, model, criterion, threshold, args):
         for i, (images, target) in enumerate(dataloader):
             bs = images.size(0)
 
-            images = images.to("cuda")
-            target = target.to("cuda")
+            images = images.to(args.device)
+            target = target.to(args.device)
 
             # dihedral TTA
             images = torch.stack([images, images.flip(-1),
@@ -140,7 +140,15 @@ def main():
     if not torch.cuda.is_available():
         print("cuda is not available")
         exit(0)
+    else:
+        args.device = torch.device("cuda")
+        print(f"available cuda: {args.device}")
 
+    # Setup model
+    model = PandaNet(arch=args.arch, num_classes=1)
+    model.to(args.device)
+
+    # Setup data
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
     print(f"loading data: {current_time}")
     filename = f"train_images_level_{args.level}_{args.tile_size}_{args.num_tiles}.npy"
@@ -150,7 +158,7 @@ def main():
     train_loader, valid_loader = datasets.get_dataloader(
         data=data,
         fold=args.fold,
-        batch_size=args.batch_size,
+        batch_size=args.per_gpu_batch_size,
         num_workers=args.num_workers)
 
     # define loss function (criterion) and optimizer
@@ -160,9 +168,6 @@ def main():
         criterion = torch.nn.MSELoss()
     elif args.loss == "smooth_l1":
         criterion = torch.nn.SmoothL1Loss()
-
-    model = PandaNet(arch=args.arch, num_classes=1)
-    model.to("cuda")
 
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=args.learning_rate,
@@ -190,7 +195,8 @@ def main():
             dataloader=train_loader,
             model=model,
             criterion=criterion,
-            optimizer=optimizer)
+            optimizer=optimizer,
+            args=args)
 
         valid_loss, valid_score, valid_cm = valid(
             dataloader=valid_loader,

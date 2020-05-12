@@ -65,11 +65,10 @@ class PandaNet(nn.Module):
                                    nn.Dropout(0.5),
                                    nn.Linear(512, 1))
 
-    def forward(self, inputs):
-        bs, num_tiles, c, h, w = inputs.size()
-        inputs = inputs.view(-1, c, h, w)
+    def forward(self, x):
+        bs, num_tiles, c, h, w = x.size()
 
-        x = self.extract_features(inputs)  # bs*N x c x h x w
+        x = self.extract_features(x.view(-1, c, h, w))  # bs*N x c x h x w
         shape = x.shape
 
         # concatenate the output for tiles into a single map
