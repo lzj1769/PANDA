@@ -1,0 +1,8 @@
+available cuda: cuda
+loading data: May12_18-03-18
+training started: May12_18-05-41
+epoch:00, train:0.364, valid:0.546, best:0.546, date:May12_18-22-20
+epoch:01, train:0.471, valid:0.621, best:0.621, date:May12_18-38-53
+epoch:02, train:0.531, valid:0.554, best:0.621, date:May12_18-55-27
+epoch:03, train:0.523, valid:0.681, best:0.681, date:May12_19-12-01
+epoch:04, train:0.538, valid:0.723, best:0.723, date:May12_19-28-35
