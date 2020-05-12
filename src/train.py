@@ -7,6 +7,7 @@ import warnings
 from sklearn.metrics import confusion_matrix
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from datetime import datetime
 
 from model import PandaNet
 import datasets
@@ -27,19 +28,22 @@ def parse_args():
                         help='use pre-trained model')
     parser.add_argument("--level", default=1, type=int,
                         help="which level to use, can only be 0, 1, 2")
-    parser.add_argument("--tile_size", default=128, type=int,
+    parser.add_argument("--tile_size", default=256, type=int,
                         help="size of tile, available are 128 and 256")
-    parser.add_argument("--num_tiles", default=16, type=int,
+    parser.add_argument("--num_tiles", default=12, type=int,
                         help="how many tiles for each image. Default: 12")
     parser.add_argument("--fold", type=int, default=0)
-    parser.add_argument("--num_workers", default=24, type=int,
+    parser.add_argument("--num_workers", default=4, type=int,
                         help="How many sub-processes to use for data.")
-    parser.add_argument("--batch_size", default=16, type=int,
+    parser.add_argument("--batch_size", default=6, type=int,
                         help="Batch size per GPU/CPU for training.")
     parser.add_argument("--learning_rate", default=3e-4, type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument("--weight_decay", default=1e-04, type=float,
                         help="Weight decay if we apply some.")
+    parser.add_argument("--loss", default='mse', type=str,
+                        help="Which loss function to use."
+                             "Available: l1, l2, smooth_l1. Default: mse")
     parser.add_argument("--log",
                         action="store_true",
                         help='write training history')
@@ -83,6 +87,7 @@ def train(dataloader, model, criterion, optimizer):
                         labels=[0, 1, 2, 3, 4, 5])
     score = utils.fast_qwk(isup_preds, train_labels)
     cm = confusion_matrix(train_labels, isup_preds)
+    del preds
 
     return train_loss, score, cm, threshold
 
@@ -119,8 +124,8 @@ def valid(dataloader, model, criterion, threshold, args):
         isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf],
                             labels=[0, 1, 2, 3, 4, 5])
         score = utils.fast_qwk(isup_preds, valid_labels)
-
         cm = confusion_matrix(valid_labels, isup_preds)
+        del preds
 
         return valid_loss, score, cm
 
@@ -136,8 +141,11 @@ def main():
         print("cuda is not available")
         exit(0)
 
+    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+    print(f"loading data: {current_time}")
     filename = f"train_images_level_{args.level}_{args.tile_size}_{args.num_tiles}.npy"
-    data = np.load(os.path.join(configure.DATA_PATH, filename), allow_pickle=True)
+    data = np.load(os.path.join(configure.DATA_PATH, filename),
+                   allow_pickle=True)
 
     train_loader, valid_loader = datasets.get_dataloader(
         data=data,
@@ -146,7 +154,12 @@ def main():
         num_workers=args.num_workers)
 
     # define loss function (criterion) and optimizer
-    criterion = torch.nn.SmoothL1Loss()
+    if args.loss == "l1":
+        criterion = torch.nn.L1Loss()
+    elif args.loss == "mse":
+        criterion = torch.nn.MSELoss()
+    elif args.loss == "smooth_l1":
+        criterion = torch.nn.SmoothL1Loss()
 
     model = PandaNet(arch=args.arch, num_classes=1)
     model.to("cuda")
@@ -158,7 +171,6 @@ def main():
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 60, 90], gamma=0.5)
 
     """ Train the model """
-    from datetime import datetime
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
     log_prefix = f'{current_time}_{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}'
     log_dir = os.path.join(configure.TRAINING_LOG_PATH,
