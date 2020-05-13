@@ -1,2 +1,3 @@
 (OK) Loading gcc system-default
 slurmstepd: error: *** JOB 13849698 ON ncm0020 CANCELLED AT 2020-05-13T11:28:42 ***
+python preprocessing.py  16594.73s user 2078.91s system 106% cpu 4:51:50.46 total

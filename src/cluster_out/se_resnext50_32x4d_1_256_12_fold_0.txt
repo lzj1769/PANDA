@@ -80,3 +80,6 @@ epoch:75, train:0.761, valid:0.813, best:0.833, date:May13_14-59-46
 epoch:76, train:0.761, valid:0.803, best:0.833, date:May13_15-16-22
 epoch:77, train:0.775, valid:0.793, best:0.833, date:May13_15-32-59
 epoch:78, train:0.762, valid:0.792, best:0.833, date:May13_15-49-35
+epoch:79, train:0.776, valid:0.779, best:0.833, date:May13_16-06-11
+epoch:80, train:0.767, valid:0.795, best:0.833, date:May13_16-22-48
+epoch:81, train:0.771, valid:0.802, best:0.833, date:May13_16-39-24
