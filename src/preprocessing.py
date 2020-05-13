@@ -103,7 +103,7 @@ if __name__ == "__main__":
         image = skimage.io.MultiImage(file_path)[1]
         image = color_cut(image)
 
-        images[image_id] = tile(image, num_tiles=32, tile_size=128)
+        images[image_id] = tile(image, num_tiles=16, tile_size=256)
 
         # for i in range(image.shape[0]):
         #     img = Image.fromarray(image[i])
@@ -120,5 +120,5 @@ if __name__ == "__main__":
     images['mean'] = img_avr
     images['std'] = img_std
 
-    np.save(os.path.join(configure.DATA_PATH, "train_images_level_1_128_32"),
+    np.save(os.path.join(configure.DATA_PATH, "train_images_level_1_256_16"),
             images)

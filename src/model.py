@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from efficientnet import EfficientNet
-from senet import se_resnext50_32x4d, se_resnext101_32x4d
+from senet import se_resnext50_32x4d, se_resnext101_32x4d, se_resnet50
 from mish import Mish
 
 
@@ -55,10 +55,16 @@ class PandaNet(nn.Module):
             self.nc = self.base.last_linear.in_features
             self.extract_features = self.base.features
 
+        elif arch == 'se_resnet50':
+            if pretrained:
+                self.base = se_resnet50()
+            else:
+                self.base = se_resnet50(pretrained=None)
+            self.nc = self.base.last_linear.in_features
+            self.extract_features = self.base.features
+
         self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
                                    Flatten(),
-                                   nn.BatchNorm1d(2 * self.nc),
-                                   nn.Dropout(0.5),
                                    nn.Linear(2 * self.nc, 512),
                                    Mish(),
                                    nn.BatchNorm1d(512),

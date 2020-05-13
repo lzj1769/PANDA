@@ -1,10 +1,10 @@
 import subprocess
 
-model_list = ['se_resnext50_32x4d']
+model_list = ['se_resnet50']
 fold_list = [1, 2, 3, 4]
 
 batch_size = {'se_resnext50_32x4d': 6,
-              'se_resnext101_32x4d': 16}
+              'se_resnet50': 6}
 
 level = 1
 tile_size = 256
