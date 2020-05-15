@@ -1,7 +1,7 @@
 (OK) Loading cuda 10.2.89
 (OK) Loading gcc system-default
-2020-05-12 18:21:50.452404: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 AVX512F FMA
-2020-05-12 18:21:50.830097: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2100000000 Hz
-2020-05-12 18:21:50.832680: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x5574a9bdf170 executing computations on platform Host. Devices:
-2020-05-12 18:21:50.832695: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version
-slurmstepd: error: *** JOB 13846143 ON ncg37 CANCELLED AT 2020-05-13T16:53:40 ***
+2020-05-14 04:16:48.300395: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 AVX512F FMA
+2020-05-14 04:16:48.659697: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2100000000 Hz
+2020-05-14 04:16:48.660035: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55ea71e2d160 executing computations on platform Host. Devices:
+2020-05-14 04:16:48.660050: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version
+slurmstepd: error: *** JOB 13860293 ON ncg28 CANCELLED AT 2020-05-14T09:16:49 ***

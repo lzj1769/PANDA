@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 from albumentations import (
@@ -12,15 +11,14 @@ from albumentations import (
 
 import configure
 
-MEAN = torch.tensor([0.64455969, 0.47587813, 0.72864011])
-STD = torch.tensor([0.39921443, 0.46409423, 0.4326094])
-
 
 class PandaDataset(Dataset):
     def __init__(self, df, data, transform):
         self.df = df
         self.data = data
         self.transform = transform
+        self.mean = torch.from_numpy(data.item().get('mean')).float()
+        self.std = torch.from_numpy(data.item().get('mean')).float()
 
     def __len__(self):
         return len(self.df)
@@ -38,6 +36,7 @@ class PandaDataset(Dataset):
 
         # split image
         image = torch.from_numpy(image / 255.0).float()
+        image = (image - self.mean) / self.std
         image = image.permute(0, 3, 1, 2)
 
         return image, label
