@@ -1,0 +1,23 @@
+available cuda: cuda
+loading data: May17_17-27-47
+data loaded: May17_17-30-39
+mean: [0.79900379 0.58860335 0.72537097]
+std: [0.16735794 0.25441445 0.17111448]
+training started: May17_17-30-40
+epoch:00, train:0.373, valid:0.272, best:0.272, date:May17_17-47-20
+epoch:01, train:0.502, valid:0.566, best:0.566, date:May17_18-03-53
+epoch:02, train:0.532, valid:0.499, best:0.566, date:May17_18-20-28
+epoch:03, train:0.566, valid:0.584, best:0.584, date:May17_18-37-02
+epoch:04, train:0.587, valid:0.556, best:0.584, date:May17_18-53-38
+epoch:05, train:0.585, valid:0.553, best:0.584, date:May17_19-10-12
+epoch:06, train:0.590, valid:0.681, best:0.681, date:May17_19-26-46
+epoch:07, train:0.597, valid:0.721, best:0.721, date:May17_19-43-21
+epoch:08, train:0.615, valid:0.707, best:0.721, date:May17_19-59-55
+epoch:09, train:0.632, valid:0.649, best:0.721, date:May17_20-16-31
+epoch:10, train:0.627, valid:0.728, best:0.728, date:May17_20-33-05
+epoch:11, train:0.623, valid:0.710, best:0.728, date:May17_20-49-42
+epoch:12, train:0.635, valid:0.661, best:0.728, date:May17_21-06-17
+epoch:13, train:0.642, valid:0.684, best:0.728, date:May17_21-22-52
+epoch:14, train:0.659, valid:0.694, best:0.728, date:May17_21-39-25
+epoch:15, train:0.655, valid:0.751, best:0.751, date:May17_21-56-00
+epoch:16, train:0.652, valid:0.649, best:0.751, date:May17_22-12-34

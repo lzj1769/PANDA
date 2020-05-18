@@ -17,8 +17,6 @@ class PandaDataset(Dataset):
         self.df = df
         self.data = data
         self.transform = transform
-        self.mean = torch.from_numpy(data.item().get('mean')).float()
-        self.std = torch.from_numpy(data.item().get('mean')).float()
 
     def __len__(self):
         return len(self.df)
@@ -36,7 +34,6 @@ class PandaDataset(Dataset):
 
         # split image
         image = torch.from_numpy(image / 255.0).float()
-        image = (image - self.mean) / self.std
         image = image.permute(0, 3, 1, 2)
 
         return image, label
@@ -47,6 +44,8 @@ def get_transforms():
         RandomRotate90(p=0.5),
         Flip(p=0.5),
         Transpose(p=0.5),
+        ShiftScaleRotate(p=0.2),
+        RandomBrightnessContrast(p=0.3)
     ])
 
 
