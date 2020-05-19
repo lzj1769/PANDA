@@ -1,7 +1,7 @@
 import subprocess
 
 model_list = ['se_resnext50_32x4d']
-fold_list = [1, 2, 3, 4]
+fold_list = [2]
 
 batch_size = {'se_resnext50_32x4d': 24,
               'se_resnext101_32x4d': 4}
