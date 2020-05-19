@@ -39,7 +39,7 @@ def parse_args():
                         help="Batch size per GPU/CPU for training.")
     parser.add_argument("--accumulation_steps", default=2, type=int,
                         help="accumulate the gradients. Default: 2")
-    parser.add_argument("--learning_rate", default=1e-3, type=float,
+    parser.add_argument("--learning_rate", default=3e-4, type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument("--weight_decay", default=1e-04, type=float,
                         help="Weight decay if we apply some.")
@@ -186,7 +186,7 @@ def main():
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 60], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20, 40, 80], gamma=0.1)
 
     """ Train the model """
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
