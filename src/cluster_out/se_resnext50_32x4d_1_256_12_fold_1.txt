@@ -1,9 +1,21 @@
 available cuda: 2
-loading data: May19_10-57-39
-data loaded: May19_11-00-04
+loading data: May19_11-21-40
+data loaded: May19_11-24-55
 mean: [0.79900379 0.58860335 0.72537097]
 std: [0.16735794 0.25441445 0.17111448]
 weight for each class: [3.6718547341115433, 3.9835834896810507, 7.9004651162790696, 8.544265593561368, 8.493, 8.675178753830439]
-training started: May19_11-00-05
-epoch:00, train:0.277, valid:0.357, best:0.357, date:May19_11-08-34
-epoch:01, train:0.443, valid:0.373, best:0.373, date:May19_11-16-55
+training started: May19_11-24-56
+epoch:00, train:0.405, valid:0.720, best:0.720, date:May19_11-33-32
+epoch:01, train:0.583, valid:0.708, best:0.720, date:May19_11-41-52
+epoch:02, train:0.613, valid:0.659, best:0.720, date:May19_11-50-12
+epoch:03, train:0.634, valid:0.754, best:0.754, date:May19_11-58-33
+epoch:04, train:0.651, valid:0.753, best:0.754, date:May19_12-06-54
+epoch:05, train:0.640, valid:0.659, best:0.754, date:May19_12-15-14
+epoch:06, train:0.617, valid:0.730, best:0.754, date:May19_12-23-34
+epoch:07, train:0.640, valid:0.772, best:0.772, date:May19_12-31-55
+epoch:08, train:0.651, valid:0.593, best:0.772, date:May19_12-40-15
+epoch:09, train:0.660, valid:0.776, best:0.776, date:May19_12-48-36
+epoch:10, train:0.655, valid:0.638, best:0.776, date:May19_12-56-57
+epoch:11, train:0.648, valid:0.681, best:0.776, date:May19_13-05-18
+epoch:12, train:0.645, valid:0.694, best:0.776, date:May19_13-13-39
+epoch:13, train:0.665, valid:0.776, best:0.776, date:May19_13-22-01

@@ -1,6 +1,8 @@
 import os
 import pandas as pd
+import numpy as np
 import torch
+import cv2
 from torch.utils.data import Dataset, DataLoader
 from albumentations import (
     CLAHE, RandomRotate90,
@@ -32,8 +34,13 @@ class PandaDataset(Dataset):
             for i in range(image.shape[0]):
                 image[i] = self.transform(image=image[i])['image']
 
-        # split image
-        image = torch.from_numpy(image / 255.0).float()
+        # resize
+        image_resize = np.empty(shape=(image.shape[0], 128, 128, 3), dtype=np.uint8)
+        for i in range(image.shape[0]):
+            image_resize[i] = cv2.resize(image[i], (128, 128))
+
+        image = torch.from_numpy(image_resize / 255.0).float()
+        # image = torch.from_numpy(image / 255.0).float()
         image = image.permute(0, 3, 1, 2)
 
         return image, label
@@ -56,9 +63,9 @@ def get_dataloader(data, fold, batch_size, num_workers):
                                  data=data,
                                  transform=get_transforms())
 
-    weights = make_weights_for_balanced_classes(df_train, num_classes=6)
-    weights = torch.DoubleTensor(weights)
-    train_sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, len(weights))
+    # weights = make_weights_for_balanced_classes(df_train, num_classes=6)
+    # weights = torch.DoubleTensor(weights)
+    # train_sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, len(weights))
 
     train_dataloader = DataLoader(dataset=train_dataset,
                                   batch_size=batch_size,

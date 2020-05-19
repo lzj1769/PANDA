@@ -41,7 +41,7 @@ def parse_args():
                         help="accumulate the gradients. Default: 2")
     parser.add_argument("--learning_rate", default=3e-4, type=float,
                         help="The initial learning rate for Adam.")
-    parser.add_argument("--weight_decay", default=1e-04, type=float,
+    parser.add_argument("--weight_decay", default=1e-4, type=float,
                         help="Weight decay if we apply some.")
     parser.add_argument("--loss", default='smooth_l1', type=str,
                         help="Which loss function to use."
@@ -102,7 +102,7 @@ def valid(dataloader, model, criterion, threshold, args):
         valid_loss = 0.0
         preds, valid_labels = [], []
         for i, (images, target) in enumerate(dataloader):
-            bs = images.size(0)
+            bs, num_tiles, c, h, w = images.size()
 
             images = images.to(args.device)
             target = target.to(args.device)
@@ -112,7 +112,7 @@ def valid(dataloader, model, criterion, threshold, args):
                                   images.flip(-2), images.flip(-1, -2),
                                   images.transpose(-1, -2), images.transpose(-1, -2).flip(-1),
                                   images.transpose(-1, -2).flip(-2), images.transpose(-1, -2).flip(-1, -2)], 1)
-            images = images.view(-1, args.num_tiles, 3, args.tile_size, args.tile_size)
+            images = images.view(-1, num_tiles, c, h, w)
 
             output = model(images).view(bs, 8, -1).mean(1).view(-1)
             loss = criterion(output, target.float())
@@ -186,7 +186,7 @@ def main():
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20, 40, 80], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
 
     """ Train the model """
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
