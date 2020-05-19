@@ -1,41 +1,75 @@
-available cuda: cuda
-loading data: May17_12-54-37
-data loaded: May17_12-59-02
+available cuda: 2
+loading data: May19_01-20-57
+data loaded: May19_01-23-25
 mean: [0.79900379 0.58860335 0.72537097]
 std: [0.16735794 0.25441445 0.17111448]
-training started: May17_12-59-02
-epoch:00, train:0.404, valid:0.577, best:0.577, date:May17_13-15-43
-epoch:01, train:0.515, valid:0.458, best:0.577, date:May17_13-32-22
-epoch:02, train:0.560, valid:0.553, best:0.577, date:May17_13-49-01
-epoch:03, train:0.520, valid:0.461, best:0.577, date:May17_14-05-41
-epoch:04, train:0.562, valid:0.661, best:0.661, date:May17_14-22-21
-epoch:05, train:0.575, valid:0.725, best:0.725, date:May17_14-39-03
-epoch:06, train:0.597, valid:0.644, best:0.725, date:May17_14-55-44
-epoch:07, train:0.625, valid:0.637, best:0.725, date:May17_15-12-24
-epoch:08, train:0.615, valid:0.673, best:0.725, date:May17_15-29-05
-epoch:09, train:0.606, valid:0.708, best:0.725, date:May17_15-45-45
-epoch:10, train:0.633, valid:0.553, best:0.725, date:May17_16-02-27
-epoch:11, train:0.638, valid:0.736, best:0.736, date:May17_16-19-07
-epoch:12, train:0.640, valid:0.683, best:0.736, date:May17_16-35-49
-epoch:13, train:0.638, valid:0.763, best:0.763, date:May17_16-52-29
-epoch:14, train:0.643, valid:0.767, best:0.767, date:May17_17-09-10
-epoch:15, train:0.663, valid:0.642, best:0.767, date:May17_17-25-49
-epoch:16, train:0.659, valid:0.685, best:0.767, date:May17_17-42-28
-epoch:17, train:0.669, valid:0.688, best:0.767, date:May17_17-59-08
-epoch:18, train:0.662, valid:0.762, best:0.767, date:May17_18-15-47
-epoch:19, train:0.655, valid:0.726, best:0.767, date:May17_18-32-26
-epoch:20, train:0.672, valid:0.767, best:0.767, date:May17_18-49-06
-epoch:21, train:0.673, valid:0.697, best:0.767, date:May17_19-05-45
-epoch:22, train:0.684, valid:0.620, best:0.767, date:May17_19-22-23
-epoch:23, train:0.680, valid:0.784, best:0.784, date:May17_19-39-00
-epoch:24, train:0.679, valid:0.735, best:0.784, date:May17_19-55-38
-epoch:25, train:0.687, valid:0.760, best:0.784, date:May17_20-12-15
-epoch:26, train:0.693, valid:0.672, best:0.784, date:May17_20-28-52
-epoch:27, train:0.691, valid:0.718, best:0.784, date:May17_20-45-30
-epoch:28, train:0.696, valid:0.774, best:0.784, date:May17_21-02-08
-epoch:29, train:0.687, valid:0.644, best:0.784, date:May17_21-18-46
-epoch:30, train:0.715, valid:0.778, best:0.784, date:May17_21-35-23
-epoch:31, train:0.711, valid:0.753, best:0.784, date:May17_21-52-00
-epoch:32, train:0.730, valid:0.770, best:0.784, date:May17_22-08-37
-epoch:33, train:0.722, valid:0.769, best:0.784, date:May17_22-25-14
-epoch:34, train:0.731, valid:0.765, best:0.784, date:May17_22-41-51
+weight for each class: [3.6714223951578036, 3.981247069854665, 7.906890130353817, 8.543259557344065, 8.5005005005005, 8.674157303370787]
+training started: May19_01-23-26
+epoch:00, train:0.335, valid:0.583, best:0.583, date:May19_01-31-57
+epoch:01, train:0.544, valid:0.557, best:0.583, date:May19_01-40-17
+epoch:02, train:0.566, valid:0.681, best:0.681, date:May19_01-48-37
+epoch:03, train:0.595, valid:0.707, best:0.707, date:May19_01-56-57
+epoch:04, train:0.608, valid:0.695, best:0.707, date:May19_02-05-17
+epoch:05, train:0.607, valid:0.694, best:0.707, date:May19_02-13-37
+epoch:06, train:0.626, valid:0.719, best:0.719, date:May19_02-21-57
+epoch:07, train:0.623, valid:0.689, best:0.719, date:May19_02-30-18
+epoch:08, train:0.617, valid:0.762, best:0.762, date:May19_02-38-38
+epoch:09, train:0.627, valid:0.723, best:0.762, date:May19_02-46-58
+epoch:10, train:0.646, valid:0.733, best:0.762, date:May19_02-55-19
+epoch:11, train:0.637, valid:0.716, best:0.762, date:May19_03-03-39
+epoch:12, train:0.636, valid:0.711, best:0.762, date:May19_03-12-00
+epoch:13, train:0.651, valid:0.715, best:0.762, date:May19_03-20-21
+epoch:14, train:0.646, valid:0.755, best:0.762, date:May19_03-28-41
+epoch:15, train:0.650, valid:0.685, best:0.762, date:May19_03-37-02
+epoch:16, train:0.658, valid:0.705, best:0.762, date:May19_03-45-23
+epoch:17, train:0.654, valid:0.782, best:0.782, date:May19_03-53-44
+epoch:18, train:0.668, valid:0.769, best:0.782, date:May19_04-02-05
+epoch:19, train:0.680, valid:0.668, best:0.782, date:May19_04-10-25
+epoch:20, train:0.671, valid:0.739, best:0.782, date:May19_04-18-46
+epoch:21, train:0.680, valid:0.732, best:0.782, date:May19_04-27-07
+epoch:22, train:0.676, valid:0.733, best:0.782, date:May19_04-35-27
+epoch:23, train:0.672, valid:0.719, best:0.782, date:May19_04-43-47
+epoch:24, train:0.669, valid:0.791, best:0.791, date:May19_04-52-08
+epoch:25, train:0.671, valid:0.778, best:0.791, date:May19_05-00-28
+epoch:26, train:0.686, valid:0.781, best:0.791, date:May19_05-08-48
+epoch:27, train:0.685, valid:0.774, best:0.791, date:May19_05-17-07
+epoch:28, train:0.688, valid:0.768, best:0.791, date:May19_05-25-27
+epoch:29, train:0.691, valid:0.820, best:0.820, date:May19_05-33-47
+epoch:30, train:0.703, valid:0.796, best:0.820, date:May19_05-42-07
+epoch:31, train:0.718, valid:0.806, best:0.820, date:May19_05-50-27
+epoch:32, train:0.727, valid:0.790, best:0.820, date:May19_05-58-47
+epoch:33, train:0.713, valid:0.807, best:0.820, date:May19_06-07-06
+epoch:34, train:0.705, valid:0.813, best:0.820, date:May19_06-15-26
+epoch:35, train:0.726, valid:0.804, best:0.820, date:May19_06-23-46
+epoch:36, train:0.724, valid:0.797, best:0.820, date:May19_06-32-05
+epoch:37, train:0.731, valid:0.796, best:0.820, date:May19_06-40-25
+epoch:38, train:0.727, valid:0.821, best:0.821, date:May19_06-48-45
+epoch:39, train:0.733, valid:0.800, best:0.821, date:May19_06-57-05
+epoch:40, train:0.730, valid:0.802, best:0.821, date:May19_07-05-25
+epoch:41, train:0.723, valid:0.791, best:0.821, date:May19_07-13-45
+epoch:42, train:0.737, valid:0.823, best:0.823, date:May19_07-22-05
+epoch:43, train:0.740, valid:0.818, best:0.823, date:May19_07-30-25
+epoch:44, train:0.744, valid:0.832, best:0.832, date:May19_07-38-45
+epoch:45, train:0.736, valid:0.824, best:0.832, date:May19_07-47-05
+epoch:46, train:0.755, valid:0.788, best:0.832, date:May19_07-55-25
+epoch:47, train:0.741, valid:0.817, best:0.832, date:May19_08-03-46
+epoch:48, train:0.748, valid:0.828, best:0.832, date:May19_08-12-06
+epoch:49, train:0.728, valid:0.817, best:0.832, date:May19_08-20-26
+epoch:50, train:0.734, valid:0.823, best:0.832, date:May19_08-28-46
+epoch:51, train:0.741, valid:0.796, best:0.832, date:May19_08-37-06
+epoch:52, train:0.741, valid:0.802, best:0.832, date:May19_08-45-26
+epoch:53, train:0.754, valid:0.794, best:0.832, date:May19_08-53-46
+epoch:54, train:0.747, valid:0.792, best:0.832, date:May19_09-02-07
+epoch:55, train:0.757, valid:0.783, best:0.832, date:May19_09-10-26
+epoch:56, train:0.741, valid:0.772, best:0.832, date:May19_09-18-46
+epoch:57, train:0.762, valid:0.806, best:0.832, date:May19_09-27-06
+epoch:58, train:0.745, valid:0.760, best:0.832, date:May19_09-35-26
+epoch:59, train:0.749, valid:0.799, best:0.832, date:May19_09-43-47
+epoch:60, train:0.752, valid:0.815, best:0.832, date:May19_09-52-06
+epoch:61, train:0.755, valid:0.826, best:0.832, date:May19_10-00-26
+epoch:62, train:0.759, valid:0.795, best:0.832, date:May19_10-08-46
+epoch:63, train:0.765, valid:0.826, best:0.832, date:May19_10-17-06
+epoch:64, train:0.763, valid:0.785, best:0.832, date:May19_10-25-26
+epoch:65, train:0.758, valid:0.803, best:0.832, date:May19_10-33-47
+epoch:66, train:0.756, valid:0.795, best:0.832, date:May19_10-42-07
+epoch:67, train:0.764, valid:0.815, best:0.832, date:May19_10-50-27

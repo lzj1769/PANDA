@@ -1,7 +1,7 @@
 import subprocess
 
 model_list = ['se_resnext50_32x4d']
-fold_list = [0]
+fold_list = [1]
 
 batch_size = {'se_resnext50_32x4d': 6,
               'se_resnext101_32x4d': 4}
@@ -16,11 +16,11 @@ for model in model_list:
         subprocess.run(["sbatch", "-J", job_name,
                         "-o", f"./cluster_out/{job_name}.txt",
                         "-e", f"./cluster_err/{job_name}.txt",
-                        "--time", "48:00:00",
+                        "--time", "20:00:00",
                         "--mem", "180G",
                         "-c", "8",
                         "-A", "rwth0455",
-                        "--gres", "gpu:1",
+                        "--gres", "gpu:2",
                         "run.zsh", model,
                         str(level), str(tile_size), str(num_tiles),
                         str(fold), str(batch_size[model])])

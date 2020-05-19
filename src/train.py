@@ -33,11 +33,13 @@ def parse_args():
     parser.add_argument("--num_tiles", default=12, type=int,
                         help="how many tiles for each image. Default: 12")
     parser.add_argument("--fold", type=int, default=0)
-    parser.add_argument("--num_workers", default=4, type=int,
+    parser.add_argument("--num_workers", default=8, type=int,
                         help="How many sub-processes to use for data.")
     parser.add_argument("--per_gpu_batch_size", default=6, type=int,
                         help="Batch size per GPU/CPU for training.")
-    parser.add_argument("--learning_rate", default=3e-4, type=float,
+    parser.add_argument("--accumulation_steps", default=2, type=int,
+                        help="accumulate the gradients. Default: 2")
+    parser.add_argument("--learning_rate", default=1e-3, type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument("--weight_decay", default=1e-04, type=float,
                         help="Weight decay if we apply some.")
@@ -59,6 +61,7 @@ def train(dataloader, model, criterion, optimizer, args):
 
     train_loss = 0.0
     preds, train_labels = [], []
+    optimizer.zero_grad()
     for i, (images, target) in enumerate(dataloader):
         images = images.to(args.device)
         target = target.to(args.device)
@@ -67,9 +70,9 @@ def train(dataloader, model, criterion, optimizer, args):
 
         loss = criterion(output.view(-1), target.float())
 
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        optimizer.zero_grad()
 
         preds.append(output.view(-1).detach().cpu().numpy())
         train_labels.append(target.detach().cpu().numpy())
@@ -142,10 +145,16 @@ def main():
         exit(0)
     else:
         args.device = torch.device("cuda")
-        print(f"available cuda: {args.device}")
+        args.n_gpus = torch.cuda.device_count()
+        print(f"available cuda: {args.n_gpus}")
 
     # Setup model
     model = PandaNet(arch=args.arch, num_classes=1)
+
+    # Setup multi-GPU
+    if args.n_gpus > 1:
+        model = torch.nn.DataParallel(module=model)
+
     model.to(args.device)
 
     # Setup data
@@ -158,10 +167,11 @@ def main():
     print(f"mean: {data.item().get('mean')}")
     print(f"std: {data.item().get('std')}")
 
+    total_batch_size = args.per_gpu_batch_size * args.n_gpus
     train_loader, valid_loader = datasets.get_dataloader(
         data=data,
         fold=args.fold,
-        batch_size=args.per_gpu_batch_size,
+        batch_size=total_batch_size,
         num_workers=args.num_workers)
 
     # define loss function (criterion) and optimizer
@@ -176,7 +186,7 @@ def main():
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[30, 60, 90], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 60], gamma=0.1)
 
     """ Train the model """
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
@@ -227,7 +237,7 @@ def main():
 
         if valid_score > best_score:
             best_score = valid_score
-            state = {'state_dict': model.state_dict(),
+            state = {'state_dict': model.module.state_dict(),
                      'threshold': threshold,
                      'train_score': train_score,
                      'valid_score': valid_score,

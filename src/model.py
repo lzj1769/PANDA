@@ -30,22 +30,12 @@ class PandaNet(nn.Module):
         super().__init__()
 
         # load EfficientNet
-        if 'efficientnet' in arch:
-            if pretrained:
-                self.base = EfficientNet.from_pretrained(model_name=arch)
-            else:
-                self.base = EfficientNet.from_name(model_name=arch)
-
-            self.nc = self.base._fc.in_features
-            self.extract_features = self.base.extract_features
-
-        elif arch == 'se_resnext50_32x4d':
+        if arch == 'se_resnext50_32x4d':
             if pretrained:
                 self.base = se_resnext50_32x4d()
             else:
                 self.base = se_resnext50_32x4d(pretrained=None)
             self.nc = self.base.last_linear.in_features
-            self.extract_features = self.base.features
 
         elif arch == 'se_resnext101_32x4d':
             if pretrained:
@@ -53,7 +43,6 @@ class PandaNet(nn.Module):
             else:
                 self.base = se_resnext101_32x4d(pretrained=None)
             self.nc = self.base.last_linear.in_features
-            self.extract_features = self.base.features
 
         elif arch == 'se_resnet50':
             if pretrained:
@@ -61,7 +50,6 @@ class PandaNet(nn.Module):
             else:
                 self.base = se_resnet50(pretrained=None)
             self.nc = self.base.last_linear.in_features
-            self.extract_features = self.base.features
 
         self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
                                    Flatten(),
@@ -69,13 +57,12 @@ class PandaNet(nn.Module):
                                    nn.Linear(2 * self.nc, 512),
                                    Mish(),
                                    nn.BatchNorm1d(512),
-                                   nn.Dropout(0.1),
                                    nn.Linear(512, 1))
 
     def forward(self, x):
         bs, num_tiles, c, h, w = x.size()
 
-        x = self.extract_features(x.view(-1, c, h, w))  # bs*N x c x h x w
+        x = self.base.features(x.view(-1, c, h, w))  # bs*N x c x h x w
         shape = x.shape
 
         # concatenate the output for tiles into a single map

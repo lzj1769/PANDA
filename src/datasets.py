@@ -50,24 +50,53 @@ def get_transforms():
 
 
 def get_dataloader(data, fold, batch_size, num_workers):
-    df_train = pd.read_csv(os.path.join(configure.SPLIT_FOLDER, f"fold_{fold}_train.csv"))
+    df_train = pd.read_csv(os.path.join(configure.SPLIT_FOLDER,
+                                        f"fold_{fold}_train.csv"))
     train_dataset = PandaDataset(df=df_train,
                                  data=data,
                                  transform=get_transforms())
+
+    weights = make_weights_for_balanced_classes(df_train, num_classes=6)
+    weights = torch.DoubleTensor(weights)
+    train_sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, len(weights))
+
     train_dataloader = DataLoader(dataset=train_dataset,
                                   batch_size=batch_size,
                                   num_workers=num_workers,
-                                  pin_memory=False,
+                                  pin_memory=True,
                                   shuffle=True)
 
-    df_valid = pd.read_csv(os.path.join(configure.SPLIT_FOLDER, f"fold_{fold}_valid.csv"))
+    df_valid = pd.read_csv(os.path.join(configure.SPLIT_FOLDER,
+                                        f"fold_{fold}_valid.csv"))
     valid_dataset = PandaDataset(df=df_valid,
                                  data=data,
                                  transform=None)
     valid_dataloader = DataLoader(dataset=valid_dataset,
                                   batch_size=batch_size,
                                   num_workers=num_workers,
-                                  pin_memory=False,
+                                  pin_memory=True,
                                   shuffle=False)
 
     return train_dataloader, valid_dataloader
+
+
+def make_weights_for_balanced_classes(df, num_classes):
+    count = [0] * num_classes
+
+    for label in df['isup_grade'].values.tolist():
+        count[label] += 1
+
+    weight_per_class = [0.] * num_classes
+    N = float(sum(count))
+
+    for i in range(num_classes):
+        weight_per_class[i] = N / float(count[i])
+
+    print(f"weight for each class: {weight_per_class}")
+
+    weight = [0.] * len(df)
+
+    for idx, label in enumerate(df['isup_grade'].values.tolist()):
+        weight[idx] = weight_per_class[label]
+
+    return weight
