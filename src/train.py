@@ -30,7 +30,7 @@ def parse_args():
                         help="which level to use, can only be 0, 1, 2")
     parser.add_argument("--tile_size", default=256, type=int,
                         help="size of tile, available are 128 and 256")
-    parser.add_argument("--num_tiles", default=12, type=int,
+    parser.add_argument("--num_tiles", default=16, type=int,
                         help="how many tiles for each image. Default: 12")
     parser.add_argument("--fold", type=int, default=0)
     parser.add_argument("--num_workers", default=8, type=int,

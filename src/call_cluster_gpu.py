@@ -1,14 +1,14 @@
 import subprocess
 
 model_list = ['se_resnext50_32x4d']
-fold_list = [2]
+fold_list = [0, 1, 2, 3, 4]
 
-batch_size = {'se_resnext50_32x4d': 24,
+batch_size = {'se_resnext50_32x4d': 8,
               'se_resnext101_32x4d': 4}
 
 level = 1
 tile_size = 256
-num_tiles = 12
+num_tiles = 16
 
 for model in model_list:
     for fold in fold_list:
@@ -16,7 +16,7 @@ for model in model_list:
         subprocess.run(["sbatch", "-J", job_name,
                         "-o", f"./cluster_out/{job_name}.txt",
                         "-e", f"./cluster_err/{job_name}.txt",
-                        "--time", "5:00:00",
+                        "--time", "24:00:00",
                         "--mem", "180G",
                         "-c", "8",
                         "-A", "rwth0455",
