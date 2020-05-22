@@ -49,6 +49,9 @@ def parse_args():
     parser.add_argument("--log",
                         action="store_true",
                         help='write training history')
+    parser.add_argument("--resume",
+                        action="store_true",
+                        help='training model from check point')
     parser.add_argument("--epochs", default=100, type=int,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
@@ -150,11 +153,21 @@ def main():
 
     # Setup model
     model = PandaNet(arch=args.arch, num_classes=1)
+    model_path = os.path.join(configure.MODEL_PATH,
+                              f'{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}.pth')
+    if args.resume:
+        assert os.path.exists(model_path), "checkpoint does not exist"
+        state_dict = torch.load(model_path)
+        train_score, valid_score = state_dict['train_score'], state_dict['valid_score']
+        print(f"load model from checkpoint, train score: {train_score:0.3f}, valid score: {valid_score:0.3f}")
+        model.load_state_dict(state_dict['state_dict'])
+        best_score = valid_score
+        args.learning_rate = 3e-05
+    else:
+        best_score = 0.0
 
-    # Setup multi-GPU
     if args.n_gpus > 1:
         model = torch.nn.DataParallel(module=model)
-
     model.to(args.device)
 
     # Setup data
@@ -186,7 +199,7 @@ def main():
                                  lr=args.learning_rate,
                                  weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
 
     """ Train the model """
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
@@ -197,10 +210,6 @@ def main():
     tb_writer = None
     if args.log:
         tb_writer = SummaryWriter(log_dir=log_dir)
-
-    best_score = 0.0
-    model_path = os.path.join(configure.MODEL_PATH,
-                              f'{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}.pth')
 
     print(f'training started: {current_time}')
     for epoch in range(args.epochs):

@@ -86,7 +86,8 @@ def get_dataloader(data, fold, batch_size, num_workers):
                                   batch_size=batch_size,
                                   num_workers=num_workers,
                                   pin_memory=True,
-                                  shuffle=True)
+                                  shuffle=True,
+                                  drop_last=True)
 
     df_valid = pd.read_csv(os.path.join(configure.SPLIT_FOLDER,
                                         f"fold_{fold}_valid.csv"))
