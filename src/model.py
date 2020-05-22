@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 
-from efficientnet import EfficientNet
-from senet import se_resnext50_32x4d, se_resnext101_32x4d, se_resnet50
+from inceptionv4 import inceptionv4
+from inceptionresnetv2 import inceptionresnetv2
+from senet import se_resnext50_32x4d, se_resnext101_32x4d
 from mish import Mish
 
 
@@ -44,11 +45,18 @@ class PandaNet(nn.Module):
                 self.base = se_resnext101_32x4d(pretrained=None)
             self.nc = self.base.last_linear.in_features
 
-        elif arch == 'se_resnet50':
+        elif arch == 'inceptionv4':
             if pretrained:
-                self.base = se_resnet50()
+                self.base = inceptionv4()
             else:
-                self.base = se_resnet50(pretrained=None)
+                self.base = inceptionv4(pretrained=None)
+            self.nc = self.base.last_linear.in_features
+
+        elif arch == 'inceptionresnetv2':
+            if pretrained:
+                self.base = inceptionresnetv2()
+            else:
+                self.base = inceptionresnetv2(pretrained=None)
             self.nc = self.base.last_linear.in_features
 
         self.logit = nn.Sequential(AdaptiveConcatPool2d(1),

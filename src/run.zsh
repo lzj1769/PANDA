@@ -14,5 +14,4 @@ python train.py \
 --fold $5 \
 --per_gpu_batch_size $6 \
 --pretrained \
---resume \
 --log

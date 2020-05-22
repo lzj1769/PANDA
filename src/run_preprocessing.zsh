@@ -4,8 +4,8 @@
 #SBATCH -o ./cluster_out/preprocessing.txt
 #SBATCH -e ./cluster_err/preprocessing.txt
 
-#SBATCH -t 30:00:00 --mem=900G
-#SBATCH -A rwth0429 -c 16 --partition=c16s
+#SBATCH -t 120:00:00 --mem=180G
+#SBATCH -A rwth0429 ##--partition=c16s
 
 source ~/.zshrc
 source ~/miniconda3/bin/activate kaggle
