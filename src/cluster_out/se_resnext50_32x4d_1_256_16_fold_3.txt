@@ -98,3 +98,10 @@ epoch:90, train:0.826, valid:0.859, best:0.860, date:May22_20-29-52
 epoch:91, train:0.820, valid:0.835, best:0.860, date:May22_20-36-40
 epoch:92, train:0.821, valid:0.838, best:0.860, date:May22_20-43-28
 epoch:93, train:0.823, valid:0.855, best:0.860, date:May22_20-50-16
+epoch:94, train:0.833, valid:0.848, best:0.860, date:May22_20-57-04
+epoch:95, train:0.818, valid:0.837, best:0.860, date:May22_21-03-54
+epoch:96, train:0.818, valid:0.847, best:0.860, date:May22_21-10-41
+epoch:97, train:0.819, valid:0.846, best:0.860, date:May22_21-17-29
+epoch:98, train:0.825, valid:0.852, best:0.860, date:May22_21-24-18
+epoch:99, train:0.825, valid:0.859, best:0.860, date:May22_21-31-06
+training finished: May22_21-31-06
