@@ -63,7 +63,6 @@ def train(dataloader, model, criterion, optimizer, args):
     model.train()
 
     train_loss = 0.0
-    optimizer.zero_grad()
     for i, (images, target) in enumerate(dataloader):
         images = images.to(args.device)
         target = target.to(args.device)
@@ -72,9 +71,9 @@ def train(dataloader, model, criterion, optimizer, args):
 
         loss = criterion(output.view(-1), target.float())
 
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        optimizer.zero_grad()
 
         # preds.append(output.view(-1).detach().cpu().numpy())
         # train_labels.append(target.detach().cpu().numpy())
@@ -241,7 +240,7 @@ def main():
                      'train_loss': train_loss,
                      'valid_loss': valid_loss,
                      'valid_score': valid_score,
-                     'threshold': threshold,
+                     'threshold': np.sort(threshold),
                      'mean': data.item().get('mean'),
                      'std': data.item().get('std')}
             torch.save(state, model_path)
@@ -249,7 +248,7 @@ def main():
         current_time = datetime.now().strftime('%b%d_%H-%M-%S')
         print(f"epoch:{epoch:02d}, "
               f"train:{train_loss:0.3f}, valid:{valid_loss:0.3f}, "
-              f"threshold: {threshold}, "
+              f"threshold: {np.sort(threshold)}, "
               f"score:{valid_score:0.3f}, best:{best_score:0.3f}, date:{current_time}")
 
         scheduler.step()

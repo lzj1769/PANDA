@@ -1,9 +1,9 @@
 import subprocess
 
-model_list = ['inceptionv4']
+model_list = ['se_resnext50_32x4d']
 fold_list = [0, 1, 2, 3, 4]
 
-batch_size = {'se_resnext50_32x4d': 8,
+batch_size = {'se_resnext50_32x4d': 5,
               'se_resnext101_32x4d': 6,
               'inceptionv4': 6,
               'inceptionresnetv2': 8}
@@ -18,7 +18,7 @@ for model in model_list:
         subprocess.run(["sbatch", "-J", job_name,
                         "-o", f"./cluster_out/{job_name}.txt",
                         "-e", f"./cluster_err/{job_name}.txt",
-                        "--time", "24:00:00",
+                        "--time", "30:00:00",
                         "--mem", "180G",
                         "-c", "8",
                         "-A", "rwth0233",

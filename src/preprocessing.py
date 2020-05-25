@@ -37,7 +37,7 @@ def color_cut(img, color=[255, 255, 255]):
     return img
 
 
-def tile(img, num_tiles=12, tile_size=256):
+def tile(wsi, num_tiles=12, tile_size=256):
     """
     Description
     __________
@@ -61,36 +61,39 @@ def tile(img, num_tiles=12, tile_size=256):
     """
 
     # Get the shape of the input image
-    shape = img.shape
+    shape = wsi.shape
 
     # Find the padding such that the image divides evenly by the desired size
     pad0, pad1 = (tile_size - shape[0] % tile_size) % tile_size, (tile_size - shape[1] % tile_size) % tile_size
 
     # Pad the image with blank space to reach the above found targets
-    img = np.pad(img,
+    wsi = np.pad(wsi,
                  [[pad0 // 2, pad0 - pad0 // 2],
                   [pad1 // 2, pad1 - pad1 // 2], [0, 0]],
                  constant_values=255, mode="constant")
 
     # Reshape and Transpose to get the images into tiles
-    img = img.reshape(img.shape[0] // tile_size, tile_size,
-                      img.shape[1] // tile_size, tile_size, 3)
-    img = img.transpose(0, 2, 1, 3, 4).reshape(-1, tile_size, tile_size, 3)
+    patches = wsi.reshape(wsi.shape[0] // tile_size, tile_size, wsi.shape[1] // tile_size, tile_size, 3)
+    patches = patches.transpose(0, 2, 1, 3, 4).reshape(-1, tile_size, tile_size, 3)
 
-    # If there are not enough tiles to meet desired N pad again
-    if len(img) < num_tiles:
-        img = np.pad(img,
-                     [[0, num_tiles - len(img)],
-                      [0, 0], [0, 0], [0, 0]],
-                     constant_values=255, mode="constant")
+    idxs = []
+    for idx, patch in enumerate(patches):
+        summed_matrix = np.sum(patch, axis=-1)
+        num_white_pixels = np.count_nonzero(summed_matrix > 620)
+        ratio_tissue_pixels = 1 - num_white_pixels / (patch.shape[0] * patch.shape[1])
+
+        print(ratio_tissue_pixels)
+        # tissue_proportion = np.sum(~np.all(patch == [255, 255, 255], axis=-1)) / (patch.shape[0] * patch.shape[1])
+        if ratio_tissue_pixels > 0.5:
+            idxs.append(idx)
 
     # Sort the images by those with the lowest sum (i.e the least white)
-    idxs = np.argsort(img.reshape(img.shape[0], -1).sum(-1))[:num_tiles]
+    # idxs = np.argsort(patches.reshape(patches.shape[0], -1).sum(-1))[:num_tiles]
 
     # Select by index those returned from the above function
-    img = img[idxs]
+    patches = patches[idxs]
 
-    return img
+    return patches
 
 
 if __name__ == "__main__":
@@ -98,16 +101,17 @@ if __name__ == "__main__":
 
     images = dict()
     mean, std = [], []
-    for image_id in df['image_id'].values.tolist():
+    for image_id in df['image_id'].values.tolist()[:2]:
         file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
         image = skimage.io.MultiImage(file_path)[0]
         image = color_cut(image)
+        images[image_id] = tile(image, tile_size=256)
 
-        images[image_id] = tile(image, num_tiles=16, tile_size=256)
+        for i in range(images[image_id].shape[0]):
+            img = Image.fromarray(images[image_id][i])
+            img.save(f'{image_id}_{i}.png')
 
-        # for i in range(image.shape[0]):
-        #     img = Image.fromarray(image[i])
-        #     img.save(f'{image_id}_{i}.png')
+        exit(0)
 
         mean.append((images[image_id] / 255.0).reshape(-1, 3).mean(0))
         std.append(((images[image_id] / 255.0) ** 2).reshape(-1, 3).mean(0))
