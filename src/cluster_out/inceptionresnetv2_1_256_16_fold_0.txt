@@ -1,107 +1,104 @@
 available cuda: 2
-loading data: May23_06-23-38
-data loaded: May23_06-26-51
+load model from checkpoint, threshold: [0.5, 1.5, 2.5, 3.5, 4.5], valid score: 0.849
+loading data: May24_18-48-38
+data loaded: May24_18-51-51
 mean: [0.81036124 0.61035397 0.74000449]
 std: [0.16581212 0.26087577 0.17437672]
-training started: May23_06-26-52
-epoch:00, train:0.293, valid:0.474, best:0.474, date:May23_06-35-26
-epoch:01, train:0.521, valid:0.698, best:0.698, date:May23_06-43-50
-epoch:02, train:0.582, valid:0.588, best:0.698, date:May23_06-52-13
-epoch:03, train:0.606, valid:0.642, best:0.698, date:May23_07-00-36
-epoch:04, train:0.615, valid:0.716, best:0.716, date:May23_07-09-01
-epoch:05, train:0.634, valid:0.639, best:0.716, date:May23_07-17-25
-epoch:06, train:0.632, valid:0.704, best:0.716, date:May23_07-25-50
-epoch:07, train:0.648, valid:0.656, best:0.716, date:May23_07-34-16
-epoch:08, train:0.640, valid:0.691, best:0.716, date:May23_07-42-41
-epoch:09, train:0.655, valid:0.774, best:0.774, date:May23_07-51-07
-epoch:10, train:0.669, valid:0.777, best:0.777, date:May23_07-59-31
-epoch:11, train:0.671, valid:0.758, best:0.777, date:May23_08-07-55
-epoch:12, train:0.674, valid:0.745, best:0.777, date:May23_08-16-20
-epoch:13, train:0.681, valid:0.643, best:0.777, date:May23_08-24-45
-epoch:14, train:0.677, valid:0.773, best:0.777, date:May23_08-33-09
-epoch:15, train:0.710, valid:0.772, best:0.777, date:May23_08-41-35
-epoch:16, train:0.701, valid:0.802, best:0.802, date:May23_08-49-59
-epoch:17, train:0.709, valid:0.801, best:0.802, date:May23_08-58-23
-epoch:18, train:0.718, valid:0.774, best:0.802, date:May23_09-06-46
-epoch:19, train:0.716, valid:0.790, best:0.802, date:May23_09-15-10
-epoch:20, train:0.712, valid:0.818, best:0.818, date:May23_09-23-35
-epoch:21, train:0.725, valid:0.793, best:0.818, date:May23_09-31-59
-epoch:22, train:0.723, valid:0.820, best:0.820, date:May23_09-40-24
-epoch:23, train:0.727, valid:0.790, best:0.820, date:May23_09-48-48
-epoch:24, train:0.740, valid:0.798, best:0.820, date:May23_09-57-11
-epoch:25, train:0.744, valid:0.825, best:0.825, date:May23_10-05-35
-epoch:26, train:0.744, valid:0.820, best:0.825, date:May23_10-13-58
-epoch:27, train:0.742, valid:0.779, best:0.825, date:May23_10-22-23
-epoch:28, train:0.741, valid:0.785, best:0.825, date:May23_10-30-47
-epoch:29, train:0.746, valid:0.811, best:0.825, date:May23_10-39-10
-epoch:30, train:0.756, valid:0.800, best:0.825, date:May23_10-47-34
-epoch:31, train:0.758, valid:0.809, best:0.825, date:May23_10-55-58
-epoch:32, train:0.757, valid:0.841, best:0.841, date:May23_11-04-22
-epoch:33, train:0.756, valid:0.812, best:0.841, date:May23_11-12-44
-epoch:34, train:0.757, valid:0.779, best:0.841, date:May23_11-21-07
-epoch:35, train:0.760, valid:0.803, best:0.841, date:May23_11-29-31
-epoch:36, train:0.771, valid:0.761, best:0.841, date:May23_11-37-54
-epoch:37, train:0.771, valid:0.816, best:0.841, date:May23_11-46-17
-epoch:38, train:0.770, valid:0.805, best:0.841, date:May23_11-54-40
-epoch:39, train:0.767, valid:0.827, best:0.841, date:May23_12-03-04
-epoch:40, train:0.769, valid:0.806, best:0.841, date:May23_12-11-28
-epoch:41, train:0.771, valid:0.818, best:0.841, date:May23_12-19-51
-epoch:42, train:0.769, valid:0.830, best:0.841, date:May23_12-28-14
-epoch:43, train:0.770, valid:0.819, best:0.841, date:May23_12-36-38
-epoch:44, train:0.778, valid:0.803, best:0.841, date:May23_12-45-02
-epoch:45, train:0.783, valid:0.828, best:0.841, date:May23_12-53-24
-epoch:46, train:0.786, valid:0.822, best:0.841, date:May23_13-01-48
-epoch:47, train:0.788, valid:0.824, best:0.841, date:May23_13-10-11
-epoch:48, train:0.795, valid:0.825, best:0.841, date:May23_13-18-34
-epoch:49, train:0.791, valid:0.813, best:0.841, date:May23_13-26-59
-epoch:50, train:0.781, valid:0.832, best:0.841, date:May23_13-35-23
-epoch:51, train:0.792, valid:0.804, best:0.841, date:May23_13-43-47
-epoch:52, train:0.785, valid:0.829, best:0.841, date:May23_13-52-10
-epoch:53, train:0.788, valid:0.832, best:0.841, date:May23_14-00-33
-epoch:54, train:0.789, valid:0.832, best:0.841, date:May23_14-08-56
-epoch:55, train:0.804, valid:0.819, best:0.841, date:May23_14-17-19
-epoch:56, train:0.791, valid:0.830, best:0.841, date:May23_14-25-43
-epoch:57, train:0.797, valid:0.814, best:0.841, date:May23_14-34-06
-epoch:58, train:0.800, valid:0.830, best:0.841, date:May23_14-42-29
-epoch:59, train:0.793, valid:0.835, best:0.841, date:May23_14-50-52
-epoch:60, train:0.792, valid:0.833, best:0.841, date:May23_14-59-16
-epoch:61, train:0.795, valid:0.839, best:0.841, date:May23_15-07-39
-epoch:62, train:0.801, valid:0.808, best:0.841, date:May23_15-16-02
-epoch:63, train:0.800, valid:0.820, best:0.841, date:May23_15-24-26
-epoch:64, train:0.810, valid:0.841, best:0.841, date:May23_15-32-50
-epoch:65, train:0.803, valid:0.834, best:0.841, date:May23_15-41-12
-epoch:66, train:0.797, valid:0.820, best:0.841, date:May23_15-49-36
-epoch:67, train:0.805, valid:0.824, best:0.841, date:May23_15-57-59
-epoch:68, train:0.805, valid:0.833, best:0.841, date:May23_16-06-22
-epoch:69, train:0.809, valid:0.827, best:0.841, date:May23_16-14-45
-epoch:70, train:0.796, valid:0.845, best:0.845, date:May23_16-23-10
-epoch:71, train:0.808, valid:0.837, best:0.845, date:May23_16-31-33
-epoch:72, train:0.803, valid:0.840, best:0.845, date:May23_16-39-57
-epoch:73, train:0.813, valid:0.843, best:0.845, date:May23_16-48-20
-epoch:74, train:0.806, valid:0.838, best:0.845, date:May23_16-56-43
-epoch:75, train:0.811, valid:0.827, best:0.845, date:May23_17-05-07
-epoch:76, train:0.811, valid:0.835, best:0.845, date:May23_17-13-30
-epoch:77, train:0.807, valid:0.828, best:0.845, date:May23_17-21-53
-epoch:78, train:0.813, valid:0.827, best:0.845, date:May23_17-30-16
-epoch:79, train:0.814, valid:0.842, best:0.845, date:May23_17-38-39
-epoch:80, train:0.814, valid:0.836, best:0.845, date:May23_17-47-02
-epoch:81, train:0.814, valid:0.844, best:0.845, date:May23_17-55-26
-epoch:82, train:0.809, valid:0.847, best:0.847, date:May23_18-03-49
-epoch:83, train:0.810, valid:0.834, best:0.847, date:May23_18-12-12
-epoch:84, train:0.814, valid:0.838, best:0.847, date:May23_18-20-35
-epoch:85, train:0.811, valid:0.842, best:0.847, date:May23_18-28-57
-epoch:86, train:0.814, valid:0.813, best:0.847, date:May23_18-37-21
-epoch:87, train:0.814, valid:0.830, best:0.847, date:May23_18-45-44
-epoch:88, train:0.815, valid:0.843, best:0.847, date:May23_18-54-07
-epoch:89, train:0.813, valid:0.840, best:0.847, date:May23_19-02-31
-epoch:90, train:0.815, valid:0.849, best:0.849, date:May23_19-10-54
-epoch:91, train:0.814, valid:0.838, best:0.849, date:May23_19-19-15
-epoch:92, train:0.819, valid:0.840, best:0.849, date:May23_19-27-38
-epoch:93, train:0.823, valid:0.830, best:0.849, date:May23_19-36-02
-epoch:94, train:0.818, valid:0.828, best:0.849, date:May23_19-44-25
-epoch:95, train:0.817, valid:0.837, best:0.849, date:May23_19-52-48
-epoch:96, train:0.820, valid:0.840, best:0.849, date:May23_20-01-12
-epoch:97, train:0.810, valid:0.838, best:0.849, date:May23_20-09-35
-epoch:98, train:0.815, valid:0.841, best:0.849, date:May23_20-17-57
-epoch:99, train:0.814, valid:0.838, best:0.849, date:May23_20-26-21
-training finished: May23_20-26-21
+training started: May24_18-51-51
+epoch:00, train:0.359, valid:0.296, threshold: [0.66828939 1.48584237 2.84702183 2.14503104 3.86271814]score:0.863, best:0.863, date:May24_19-00-23
+epoch:01, train:0.355, valid:0.291, threshold: [0.70548724 1.58751883 2.52312403 3.0612108  4.14266692]score:0.867, best:0.867, date:May24_19-08-45
+epoch:02, train:0.352, valid:0.314, threshold: [0.63275703 1.71604735 2.66494009 2.0678142  3.55459934]score:0.859, best:0.867, date:May24_19-17-06
+epoch:03, train:0.359, valid:0.294, threshold: [0.61253386 1.54134892 2.58647824 2.83815153 3.80323258]score:0.859, best:0.867, date:May24_19-25-27
+epoch:04, train:0.353, valid:0.309, threshold: [0.57240702 1.570234   2.56888325 2.14924579 3.47493583]score:0.866, best:0.867, date:May24_19-33-49
+epoch:05, train:0.355, valid:0.293, threshold: [0.65407609 1.90863851 2.77621309 1.36443548 3.64098847]score:0.860, best:0.867, date:May24_19-42-10
+epoch:06, train:0.365, valid:0.323, threshold: [0.45442149 1.4720902  1.93074029 2.54326075 5.91071813]score:0.847, best:0.867, date:May24_19-50-32
+epoch:07, train:0.342, valid:0.283, threshold: [0.58205017 1.60262036 2.62579508 2.97403131 3.86474123]score:0.863, best:0.867, date:May24_19-58-53
+epoch:08, train:0.353, valid:0.287, threshold: [0.57994859 1.68711031 2.53401695 2.80694575 3.81109301]score:0.861, best:0.867, date:May24_20-07-15
+epoch:09, train:0.359, valid:0.288, threshold: [0.56734125 1.72182614 2.78844924 2.37756281 3.74727828]score:0.864, best:0.867, date:May24_20-15-36
+epoch:10, train:0.346, valid:0.296, threshold: [0.58194413 1.66582502 2.22284655 2.92754759 3.75953445]score:0.861, best:0.867, date:May24_20-23-57
+epoch:11, train:0.351, valid:0.290, threshold: [0.61291076 2.02023834 2.71556244 1.76510738 3.51170602]score:0.862, best:0.867, date:May24_20-32-19
+epoch:12, train:0.337, valid:0.301, threshold: [0.70084414 1.61769095 2.20182515 2.88732765 3.76007841]score:0.865, best:0.867, date:May24_20-40-40
+epoch:13, train:0.335, valid:0.301, threshold: [0.69510737 1.38059867 2.61922661 2.04888793 3.94671086]score:0.865, best:0.867, date:May24_20-49-01
+epoch:14, train:0.344, valid:0.287, threshold: [0.56726499 1.57973381 2.29965457 3.0735451  3.91809547]score:0.866, best:0.867, date:May24_20-57-24
+epoch:15, train:0.327, valid:0.295, threshold: [0.65709319 1.75120667 2.17206245 2.77879676 3.64174204]score:0.867, best:0.867, date:May24_21-05-46
+epoch:16, train:0.346, valid:0.282, threshold: [0.63324845 1.43903083 2.47650193 2.86258784 3.9057861 ]score:0.867, best:0.867, date:May24_21-14-07
+epoch:17, train:0.343, valid:0.287, threshold: [0.6256036  1.56293636 2.77498227 2.23908567 3.8508793 ]score:0.865, best:0.867, date:May24_21-22-29
+epoch:18, train:0.333, valid:0.294, threshold: [0.59885315 1.7153921  2.26829214 2.88880037 3.67087347]score:0.866, best:0.867, date:May24_21-30-50
+epoch:19, train:0.337, valid:0.284, threshold: [0.60076255 1.65430853 2.35959041 3.0761485  3.98903948]score:0.868, best:0.868, date:May24_21-39-12
+epoch:20, train:0.338, valid:0.290, threshold: [0.69382812 1.4824642  2.34888478 2.89134466 3.86700027]score:0.866, best:0.868, date:May24_21-47-33
+epoch:21, train:0.326, valid:0.302, threshold: [0.66984644 1.47084281 2.71245428 2.19553839 3.62027159]score:0.868, best:0.868, date:May24_21-55-55
+epoch:22, train:0.320, valid:0.280, threshold: [0.57644171 1.57829689 2.41611833 3.1249112  3.95501433]score:0.867, best:0.868, date:May24_22-04-16
+epoch:23, train:0.328, valid:0.304, threshold: [0.61403286 1.69740309 2.15800492 2.78635128 3.58179126]score:0.862, best:0.868, date:May24_22-12-37
+epoch:24, train:0.311, valid:0.293, threshold: [0.62815911 1.64652534 2.18638102 2.87151399 3.66035336]score:0.865, best:0.868, date:May24_22-21-00
+epoch:25, train:0.312, valid:0.274, threshold: [0.55239991 1.59069379 2.54355179 3.12874583 3.98605654]score:0.864, best:0.868, date:May24_22-29-21
+epoch:26, train:0.310, valid:0.285, threshold: [0.56249853 1.73478175 2.42279116 2.94551856 3.75330361]score:0.864, best:0.868, date:May24_22-37-42
+epoch:27, train:0.307, valid:0.295, threshold: [0.58560807 1.69617757 2.24192151 2.90666825 3.6574371 ]score:0.863, best:0.868, date:May24_22-46-04
+epoch:28, train:0.313, valid:0.281, threshold: [0.58032964 1.67698787 2.85050492 2.32665001 3.79674783]score:0.863, best:0.868, date:May24_22-54-27
+epoch:29, train:0.307, valid:0.285, threshold: [0.57975752 1.6547526  2.46690944 2.96626174 3.83472753]score:0.865, best:0.868, date:May24_23-02-49
+epoch:30, train:0.314, valid:0.298, threshold: [0.48432958 2.01787775 1.68766785 2.68385298 3.47776055]score:0.860, best:0.868, date:May24_23-11-11
+epoch:31, train:0.314, valid:0.285, threshold: [0.63409347 1.5913569  2.7196905  2.24383213 3.78611576]score:0.865, best:0.868, date:May24_23-19-33
+epoch:32, train:0.320, valid:0.285, threshold: [0.61179452 1.72445243 2.84209653 2.26226131 3.72453797]score:0.869, best:0.869, date:May24_23-27-56
+epoch:33, train:0.316, valid:0.290, threshold: [0.45456746 1.77926801 2.23330059 2.96641953 3.78594544]score:0.863, best:0.869, date:May24_23-36-18
+epoch:34, train:0.314, valid:0.291, threshold: [0.60784741 1.72573614 2.5305011  2.902728   3.6357676 ]score:0.868, best:0.869, date:May24_23-44-40
+epoch:35, train:0.311, valid:0.284, threshold: [0.55654943 1.65374052 2.54933475 3.05681193 3.9747876 ]score:0.866, best:0.869, date:May24_23-53-02
+epoch:36, train:0.302, valid:0.315, threshold: [0.54126354 1.49165825 2.56102663 2.14154985 4.96010076]score:0.852, best:0.869, date:May25_00-01-25
+epoch:37, train:0.305, valid:0.285, threshold: [0.54627145 1.74473569 2.3529241  2.75302877 3.83667819]score:0.866, best:0.869, date:May25_00-09-46
+epoch:38, train:0.302, valid:0.298, threshold: [0.59902686 1.68761265 2.09352784 2.7485563  3.85124123]score:0.858, best:0.869, date:May25_00-18-09
+epoch:39, train:0.306, valid:0.299, threshold: [0.6751945  1.67673935 2.55361197 2.19367426 3.68637687]score:0.864, best:0.869, date:May25_00-26-31
+epoch:40, train:0.305, valid:0.305, threshold: [0.6928496  1.55235162 2.51426625 2.10672525 3.52892422]score:0.858, best:0.869, date:May25_00-34-53
+epoch:41, train:0.304, valid:0.292, threshold: [0.57534959 1.60553236 2.30529038 2.92677247 3.7122717 ]score:0.864, best:0.869, date:May25_00-43-15
+epoch:42, train:0.303, valid:0.278, threshold: [0.63290742 1.64650038 2.32494254 2.8302375  3.91448912]score:0.867, best:0.869, date:May25_00-51-37
+epoch:43, train:0.301, valid:0.293, threshold: [0.64543107 1.79365192 2.29111044 2.78286444 3.74662792]score:0.868, best:0.869, date:May25_01-00-00
+epoch:44, train:0.293, valid:0.283, threshold: [0.63927518 1.51418595 2.88268411 2.19802556 3.67336735]score:0.867, best:0.869, date:May25_01-08-22
+epoch:45, train:0.304, valid:0.286, threshold: [0.55392652 1.61450866 2.25395748 2.82003662 3.62392851]score:0.869, best:0.869, date:May25_01-16-45
+epoch:46, train:0.302, valid:0.284, threshold: [0.57635808 1.53900888 2.6245647  3.2008101  3.95048418]score:0.862, best:0.869, date:May25_01-25-08
+epoch:47, train:0.301, valid:0.289, threshold: [0.65115248 1.67564135 2.88269754 2.21646042 3.69080424]score:0.869, best:0.869, date:May25_01-33-30
+epoch:48, train:0.300, valid:0.286, threshold: [0.6403842  1.6926552  2.88120778 1.9781026  3.82251338]score:0.866, best:0.869, date:May25_01-41-52
+epoch:49, train:0.299, valid:0.296, threshold: [0.56518091 1.50306133 2.2296372  2.84623646 4.62889888]score:0.857, best:0.869, date:May25_01-50-14
+epoch:50, train:0.313, valid:0.276, threshold: [0.5773469  1.60654192 2.38281519 3.02065828 3.85193875]score:0.867, best:0.869, date:May25_01-58-36
+epoch:51, train:0.299, valid:0.319, threshold: [0.5032793  1.76585077 2.44153517 1.41254402 4.6339883 ]score:0.847, best:0.869, date:May25_02-06-58
+epoch:52, train:0.312, valid:0.281, threshold: [0.46874032 1.75528792 2.41404553 2.94084345 3.95371242]score:0.863, best:0.869, date:May25_02-15-20
+epoch:53, train:0.304, valid:0.291, threshold: [0.69862597 1.29475915 2.60203627 2.1053846  3.69749414]score:0.864, best:0.869, date:May25_02-23-42
+epoch:54, train:0.304, valid:0.285, threshold: [0.57649556 1.65245252 2.58624591 2.96969395 3.83840075]score:0.866, best:0.869, date:May25_02-32-04
+epoch:55, train:0.283, valid:0.289, threshold: [0.57820264 1.5833715  2.61794894 2.83580216 3.69728443]score:0.864, best:0.869, date:May25_02-40-25
+epoch:56, train:0.299, valid:0.279, threshold: [0.63132321 1.65270576 2.40971681 2.911995   3.90347842]score:0.871, best:0.871, date:May25_02-48-48
+epoch:57, train:0.297, valid:0.279, threshold: [0.55044033 1.58288796 2.58376109 2.98083783 3.7933303 ]score:0.866, best:0.871, date:May25_02-57-10
+epoch:58, train:0.295, valid:0.296, threshold: [0.51420211 1.73388942 2.29820198 2.86522222 3.73821721]score:0.866, best:0.871, date:May25_03-05-32
+epoch:59, train:0.298, valid:0.282, threshold: [0.4945776  1.72735278 2.5167497  2.98092249 3.7410259 ]score:0.864, best:0.871, date:May25_03-13-53
+epoch:60, train:0.320, valid:0.287, threshold: [0.63998239 1.52979903 2.17852691 2.99274471 3.66767651]score:0.867, best:0.871, date:May25_03-22-15
+epoch:61, train:0.314, valid:0.285, threshold: [0.55302608 1.6729411  2.58505134 3.00103041 3.89700798]score:0.866, best:0.871, date:May25_03-30-36
+epoch:62, train:0.308, valid:0.313, threshold: [0.58589079 1.69636381 2.48626932 2.10462001 4.79775611]score:0.846, best:0.871, date:May25_03-38-58
+epoch:63, train:0.311, valid:0.309, threshold: [0.57683276 1.45782371 2.0940914  3.06164713 3.38301291]score:0.865, best:0.871, date:May25_03-47-20
+epoch:64, train:0.299, valid:0.279, threshold: [0.60406982 1.56065472 2.91724247 2.37537963 3.91676813]score:0.869, best:0.871, date:May25_03-55-42
+epoch:65, train:0.308, valid:0.290, threshold: [0.56527272 1.64368349 2.57397253 2.89406126 3.78456016]score:0.864, best:0.871, date:May25_04-04-04
+epoch:66, train:0.316, valid:0.297, threshold: [0.61870491 1.80530169 2.60112341 2.22828483 3.5052522 ]score:0.865, best:0.871, date:May25_04-12-28
+epoch:67, train:0.306, valid:0.291, threshold: [0.59783378 1.62879983 2.26516503 2.84988148 3.86949188]score:0.864, best:0.871, date:May25_04-20-50
+epoch:68, train:0.304, valid:0.280, threshold: [0.57476655 1.63546531 2.53366292 2.99205846 3.72728934]score:0.864, best:0.871, date:May25_04-29-12
+epoch:69, train:0.302, valid:0.290, threshold: [0.62957721 1.73266995 2.78729895 2.16309569 3.88015264]score:0.866, best:0.871, date:May25_04-37-35
+epoch:70, train:0.319, valid:0.283, threshold: [0.59413398 1.62644467 2.80426272 2.30669185 3.7071371 ]score:0.869, best:0.871, date:May25_04-45-58
+epoch:71, train:0.304, valid:0.281, threshold: [0.57239655 1.72781826 2.53680239 3.05727122 3.74105224]score:0.866, best:0.871, date:May25_04-54-21
+epoch:72, train:0.309, valid:0.291, threshold: [0.50340237 1.55339815 2.79801119 2.14120871 3.62416485]score:0.868, best:0.871, date:May25_05-02-43
+epoch:73, train:0.300, valid:0.282, threshold: [0.55661546 1.644849   2.57602048 3.05118941 3.86860882]score:0.867, best:0.871, date:May25_05-11-05
+epoch:74, train:0.310, valid:0.283, threshold: [0.60285327 1.67015665 2.39661585 2.94100776 3.92937003]score:0.869, best:0.871, date:May25_05-19-27
+epoch:75, train:0.310, valid:0.283, threshold: [0.62966833 1.62648196 2.79158229 2.14768996 3.73205504]score:0.868, best:0.871, date:May25_05-27-48
+epoch:76, train:0.316, valid:0.280, threshold: [0.57448976 1.67069994 2.47024144 3.12650059 3.85146349]score:0.866, best:0.871, date:May25_05-36-11
+epoch:77, train:0.315, valid:0.294, threshold: [0.71036479 1.62053376 2.81904735 1.94762701 3.7507736 ]score:0.867, best:0.871, date:May25_05-44-33
+epoch:78, train:0.313, valid:0.303, threshold: [0.57473239 1.52434306 2.39205085 2.78226013 4.79064977]score:0.849, best:0.871, date:May25_05-52-55
+epoch:79, train:0.307, valid:0.277, threshold: [0.55227483 1.62082193 2.53291686 3.14921635 3.88489896]score:0.865, best:0.871, date:May25_06-01-18
+epoch:80, train:0.314, valid:0.285, threshold: [0.54861558 1.70655127 2.24437122 2.94240534 3.83283823]score:0.864, best:0.871, date:May25_06-09-41
+epoch:81, train:0.308, valid:0.279, threshold: [0.5917859  1.64732503 2.58854373 2.85757493 3.69801262]score:0.867, best:0.871, date:May25_06-18-03
+epoch:82, train:0.319, valid:0.278, threshold: [0.57277718 1.71791795 2.61302816 2.89541839 3.78659723]score:0.865, best:0.871, date:May25_06-26-26
+epoch:83, train:0.316, valid:0.293, threshold: [0.5702634  1.77613214 2.23547415 2.68885383 3.54479331]score:0.864, best:0.871, date:May25_06-34-48
+epoch:84, train:0.310, valid:0.287, threshold: [0.59892882 1.72238909 2.8440352  2.21124732 3.62063403]score:0.866, best:0.871, date:May25_06-43-10
+epoch:85, train:0.319, valid:0.283, threshold: [0.55377514 1.55804812 2.62963545 3.04919518 3.77840925]score:0.864, best:0.871, date:May25_06-51-32
+epoch:86, train:0.313, valid:0.318, threshold: [0.57216328 1.50950061 2.61184967 2.09054014 4.77501512]score:0.849, best:0.871, date:May25_06-59-55
+epoch:87, train:0.310, valid:0.290, threshold: [0.6276934  1.61201341 2.15088406 2.94348192 3.83855379]score:0.869, best:0.871, date:May25_07-08-18
+epoch:88, train:0.312, valid:0.278, threshold: [0.5626144  1.58928455 2.55523325 3.03114102 3.9869602 ]score:0.866, best:0.871, date:May25_07-16-41
+epoch:89, train:0.314, valid:0.279, threshold: [0.54900511 1.64822168 2.53482369 3.06535406 3.96941742]score:0.867, best:0.871, date:May25_07-25-04
+epoch:90, train:0.319, valid:0.278, threshold: [0.60302693 1.64362697 2.30329804 3.00233999 4.0934968 ]score:0.868, best:0.871, date:May25_07-33-26
+epoch:91, train:0.326, valid:0.286, threshold: [0.59566025 1.65501605 2.41818802 3.02010694 3.88210306]score:0.865, best:0.871, date:May25_07-41-49
+epoch:92, train:0.318, valid:0.283, threshold: [0.58922556 1.63366032 2.49288881 2.76218244 3.86319227]score:0.868, best:0.871, date:May25_07-50-12
+epoch:93, train:0.316, valid:0.289, threshold: [0.59242926 1.67931191 2.32016364 2.87248237 3.54656304]score:0.866, best:0.871, date:May25_07-58-34
+epoch:94, train:0.321, valid:0.290, threshold: [0.59586052 1.66235223 2.23577089 2.92272469 3.56075573]score:0.866, best:0.871, date:May25_08-06-57
+epoch:95, train:0.330, valid:0.289, threshold: [0.64499719 1.721344   2.38917777 3.03151232 3.85508041]score:0.868, best:0.871, date:May25_08-15-20
+epoch:96, train:0.323, valid:0.284, threshold: [0.59045965 1.53618545 2.32555513 3.05267082 4.04573074]score:0.865, best:0.871, date:May25_08-23-42

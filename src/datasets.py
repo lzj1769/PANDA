@@ -35,12 +35,12 @@ class PandaDataset(Dataset):
                 image[i] = self.transform(image=image[i])['image']
 
         # resize
-        image_resize = np.empty(shape=(image.shape[0], 192, 192, 3), dtype=np.uint8)
-        for i in range(image.shape[0]):
-            image_resize[i] = cv2.resize(image[i], (192, 192))
-
-        image = torch.from_numpy(image_resize / 255.0).float()
-        # image = torch.from_numpy(image / 255.0).float()
+        # image_resize = np.empty(shape=(image.shape[0], 192, 192, 3), dtype=np.uint8)
+        # for i in range(image.shape[0]):
+        #     image_resize[i] = cv2.resize(image[i], (192, 192))
+        #
+        # image = torch.from_numpy(image_resize / 255.0).float()
+        image = torch.from_numpy(image / 255.0).float()
         image = image.permute(0, 3, 1, 2)
 
         return image, label

@@ -63,7 +63,6 @@ def train(dataloader, model, criterion, optimizer, args):
     model.train()
 
     train_loss = 0.0
-    preds, train_labels = [], []
     optimizer.zero_grad()
     for i, (images, target) in enumerate(dataloader):
         images = images.to(args.device)
@@ -77,28 +76,25 @@ def train(dataloader, model, criterion, optimizer, args):
         optimizer.step()
         optimizer.zero_grad()
 
-        preds.append(output.view(-1).detach().cpu().numpy())
-        train_labels.append(target.detach().cpu().numpy())
+        # preds.append(output.view(-1).detach().cpu().numpy())
+        # train_labels.append(target.detach().cpu().numpy())
         train_loss += loss.item() / len(dataloader)
 
-    preds = np.concatenate(preds)
-    train_labels = np.concatenate(train_labels)
+    # preds = np.concatenate(preds)
+    # train_labels = np.concatenate(train_labels)
+    #
+    # threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
+    #
+    # isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf],
+    #                     labels=[0, 1, 2, 3, 4, 5])
+    # score = utils.fast_qwk(isup_preds, train_labels)
+    # cm = confusion_matrix(train_labels, isup_preds)
+    # del preds
 
-    # threshold = utils.find_threshold(y_true=train_labels,
-    #                                 y_pred=preds)
-
-    threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
-
-    isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf],
-                        labels=[0, 1, 2, 3, 4, 5])
-    score = utils.fast_qwk(isup_preds, train_labels)
-    cm = confusion_matrix(train_labels, isup_preds)
-    del preds
-
-    return train_loss, score, cm, threshold
+    return train_loss
 
 
-def valid(dataloader, model, criterion, threshold, args):
+def valid(dataloader, model, criterion, args):
     model.eval()
 
     with torch.no_grad():
@@ -127,13 +123,15 @@ def valid(dataloader, model, criterion, threshold, args):
         preds = np.concatenate(preds)
         valid_labels = np.concatenate(valid_labels)
 
+        threshold = utils.find_threshold(y_true=valid_labels,
+                                         y_pred=preds)
+
         isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf],
                             labels=[0, 1, 2, 3, 4, 5])
         score = utils.fast_qwk(isup_preds, valid_labels)
         cm = confusion_matrix(valid_labels, isup_preds)
-        del preds
 
-        return valid_loss, score, cm
+        return valid_loss, score, cm, threshold
 
 
 def main():
@@ -158,8 +156,9 @@ def main():
     if args.resume:
         assert os.path.exists(model_path), "checkpoint does not exist"
         state_dict = torch.load(model_path)
-        train_score, valid_score = state_dict['train_score'], state_dict['valid_score']
-        print(f"load model from checkpoint, train score: {train_score:0.3f}, valid score: {valid_score:0.3f}")
+        valid_score = state_dict['valid_score']
+        threshold = state_dict['threshold']
+        print(f"load model from checkpoint, threshold: {threshold}, valid score: {state_dict['valid_score']:0.3f}")
         model.load_state_dict(state_dict['state_dict'])
         best_score = valid_score
         args.learning_rate = 3e-05
@@ -177,8 +176,6 @@ def main():
     data = np.load(os.path.join(configure.DATA_PATH, filename),
                    allow_pickle=True)
     print(f"data loaded: {datetime.now().strftime('%b%d_%H-%M-%S')}")
-    print(f"mean: {data.item().get('mean')}")
-    print(f"std: {data.item().get('std')}")
 
     total_batch_size = args.per_gpu_batch_size * args.n_gpus
     train_loader, valid_loader = datasets.get_dataloader(
@@ -213,18 +210,17 @@ def main():
 
     print(f'training started: {current_time}')
     for epoch in range(args.epochs):
-        train_loss, train_score, train_cm, threshold = train(
+        train_loss = train(
             dataloader=train_loader,
             model=model,
             criterion=criterion,
             optimizer=optimizer,
             args=args)
 
-        valid_loss, valid_score, valid_cm = valid(
+        valid_loss, valid_score, valid_cm, threshold = valid(
             dataloader=valid_loader,
             model=model,
             criterion=criterion,
-            threshold=threshold,
             args=args)
 
         learning_rate = scheduler.get_lr()[0]
@@ -232,14 +228,9 @@ def main():
             tb_writer.add_scalar("learning_rate", learning_rate, epoch)
             tb_writer.add_scalar("Loss/train", train_loss, epoch)
             tb_writer.add_scalar("Loss/valid", valid_loss, epoch)
-            tb_writer.add_scalar("Score/train", train_score, epoch)
             tb_writer.add_scalar("Score/valid", valid_score, epoch)
 
             # Log the confusion matrix as an image summary.
-            figure = utils.plot_confusion_matrix(train_cm, class_names=[0, 1, 2, 3, 4, 5], score=train_score)
-            cm_image = utils.plot_to_image(figure)
-            tb_writer.add_image("Confusion Matrix train", cm_image, epoch)
-
             figure = utils.plot_confusion_matrix(valid_cm, class_names=[0, 1, 2, 3, 4, 5], score=valid_score)
             cm_image = utils.plot_to_image(figure)
             tb_writer.add_image("Confusion Matrix valid", cm_image, epoch)
@@ -247,17 +238,19 @@ def main():
         if valid_score > best_score:
             best_score = valid_score
             state = {'state_dict': model.module.state_dict(),
-                     'threshold': threshold,
-                     'train_score': train_score,
+                     'train_loss': train_loss,
+                     'valid_loss': valid_loss,
                      'valid_score': valid_score,
+                     'threshold': threshold,
                      'mean': data.item().get('mean'),
                      'std': data.item().get('std')}
             torch.save(state, model_path)
 
         current_time = datetime.now().strftime('%b%d_%H-%M-%S')
         print(f"epoch:{epoch:02d}, "
-              f"train:{train_score:0.3f}, valid:{valid_score:0.3f}, "
-              f"best:{best_score:0.3f}, date:{current_time}")
+              f"train:{train_loss:0.3f}, valid:{valid_loss:0.3f}, "
+              f"threshold: {threshold}, "
+              f"score:{valid_score:0.3f}, best:{best_score:0.3f}, date:{current_time}")
 
         scheduler.step()
 

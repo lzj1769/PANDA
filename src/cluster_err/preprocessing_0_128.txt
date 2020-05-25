@@ -1,2 +1,0 @@
-(OK) Loading gcc system-default
-slurmstepd: error: *** JOB 13784398 ON ncm0179 CANCELLED AT 2020-05-08T19:17:15 ***
