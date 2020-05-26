@@ -212,10 +212,21 @@ def color_cut(img, color=[255, 255, 255]):
 
 
 if __name__ == "__main__":
-    y_true = [1, 2, 3, 3, 4, 5, 0, 1, 2, 3, 4, 5]
-    y_pred = np.array([-10, 2.3, 4.3, 4.5, 2.4, 4.4, 5.5, 2.7, 0.1, 0.3, 0.4, 3.7])
+    import configure
+    import skimage.io
+    import cv2
+    from PIL import Image
 
-    score, threshold = find_threshold(y_true=y_true, y_pred=y_pred)
+    df = pd.read_csv(configure.TRAIN_DF)
+    print(len(df))
+    image_id = df['image_id'].values.tolist()[999]
+    file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
+    image = skimage.io.MultiImage(file_path)[0]
+    print(image.shape)
+    patches = get_patches(image, patch_size=512, num_patches=128)
 
-    print(score)
-    print(threshold)
+    for i in range(patches.shape[0]):
+        img = Image.fromarray(cv2.resize(patches[i], (128, 128)))
+        img.save(f'{image_id}_{i}.png')
+
+    exit(0)

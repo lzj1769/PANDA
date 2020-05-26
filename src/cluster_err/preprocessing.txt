@@ -1,3 +1,0 @@
-(OK) Loading gcc system-default
-python preprocessing.py  233907.07s user 19872.10s system 98% cpu 71:29:42.52 total
-slurmstepd: error: Detected 1 oom-kill event(s) in step 14042161.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.

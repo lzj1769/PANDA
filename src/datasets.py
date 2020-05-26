@@ -32,14 +32,14 @@ class PandaDataset(Dataset):
         image_id = self.df['image_id'].values[idx]
         file_path = f'{self.data_dir}/{image_id}.tiff'
         image = skimage.io.MultiImage(file_path)[self.level]
-        image = utils.color_cut(image)
-
-        if self.transform:
-            image = self.transform(image=image)['image']
-
         image = utils.get_patches(image,
                                   patch_size=self.patch_size,
                                   num_patches=self.num_patches)
+
+        if self.transform:
+            for i in range(image.shape[0]):
+                image[i] = self.transform(image=image[i])['image']
+
         image = torch.from_numpy(image / 255.0).float()
         image = image.permute(0, 3, 1, 2)
 
@@ -69,7 +69,7 @@ def get_transforms():
         #     IAAEmboss(),
         #     RandomBrightnessContrast(),
         # ], p=0.3),
-        # HueSaturationValue(p=0.3),
+        HueSaturationValue(p=0.3),
     ])
 
 

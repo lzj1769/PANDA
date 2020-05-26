@@ -135,7 +135,7 @@ def main():
         print(f"available cuda: {args.n_gpus}")
 
     # Setup model
-    model = PandaNet(arch=args.arch, num_classes=1, num_patches=args.num_patches)
+    model = PandaNet(arch=args.arch)
     model_path = os.path.join(configure.MODEL_PATH,
                               f'{args.arch}_fold_{args.fold}_{args.patch_size}_{args.num_patches}.pth')
     if args.resume:
