@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import torch
+import skimage.io
 import cv2
 from torch.utils.data import Dataset, DataLoader
 from albumentations import (
@@ -12,12 +13,16 @@ from albumentations import (
 )
 
 import configure
+import utils
 
 
 class PandaDataset(Dataset):
-    def __init__(self, df, data, transform):
+    def __init__(self, df, data_dir, level, patch_size, num_patches, transform):
         self.df = df
-        self.data = data
+        self.data_dir = data_dir
+        self.level = level
+        self.patch_size = patch_size
+        self.num_patches = num_patches
         self.transform = transform
 
     def __len__(self):
@@ -25,23 +30,20 @@ class PandaDataset(Dataset):
 
     def __getitem__(self, idx):
         image_id = self.df['image_id'].values[idx]
-        image = self.data.item().get(image_id)
-
-        label = self.df['isup_grade'].values[idx]
-        # smooth_label = np.random.normal(loc=label, scale=0.2)
+        file_path = f'{self.data_dir}/{image_id}.tiff'
+        image = skimage.io.MultiImage(file_path)[self.level]
+        image = utils.color_cut(image)
 
         if self.transform:
-            for i in range(image.shape[0]):
-                image[i] = self.transform(image=image[i])['image']
+            image = self.transform(image=image)['image']
 
-        # resize
-        # image_resize = np.empty(shape=(image.shape[0], 192, 192, 3), dtype=np.uint8)
-        # for i in range(image.shape[0]):
-        #     image_resize[i] = cv2.resize(image[i], (192, 192))
-        #
-        # image = torch.from_numpy(image_resize / 255.0).float()
+        image = utils.get_patches(image,
+                                  patch_size=self.patch_size,
+                                  num_patches=self.num_patches)
         image = torch.from_numpy(image / 255.0).float()
         image = image.permute(0, 3, 1, 2)
+
+        label = self.df['isup_grade'].values[idx]
 
         return image, label
 
@@ -67,20 +69,30 @@ def get_transforms():
         #     IAAEmboss(),
         #     RandomBrightnessContrast(),
         # ], p=0.3),
-        HueSaturationValue(p=0.3),
+        # HueSaturationValue(p=0.3),
     ])
 
 
-def get_dataloader(data, fold, batch_size, num_workers):
+def get_dataloader(fold, batch_size, level, patch_size, num_patches, num_workers):
     df_train = pd.read_csv(os.path.join(configure.SPLIT_FOLDER,
                                         f"fold_{fold}_train.csv"))
+
+    df_valid = pd.read_csv(os.path.join(configure.SPLIT_FOLDER,
+                                        f"fold_{fold}_valid.csv"))
+
     train_dataset = PandaDataset(df=df_train,
-                                 data=data,
+                                 data_dir=configure.TRAIN_IMAGE_PATH,
+                                 level=level,
+                                 patch_size=patch_size,
+                                 num_patches=num_patches,
                                  transform=get_transforms())
 
-    # weights = make_weights_for_balanced_classes(df_train, num_classes=6)
-    # weights = torch.DoubleTensor(weights)
-    # train_sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, len(weights))
+    valid_dataset = PandaDataset(df=df_valid,
+                                 data_dir=configure.TRAIN_IMAGE_PATH,
+                                 level=level,
+                                 patch_size=patch_size,
+                                 num_patches=num_patches,
+                                 transform=None)
 
     train_dataloader = DataLoader(dataset=train_dataset,
                                   batch_size=batch_size,
@@ -89,11 +101,6 @@ def get_dataloader(data, fold, batch_size, num_workers):
                                   shuffle=True,
                                   drop_last=True)
 
-    df_valid = pd.read_csv(os.path.join(configure.SPLIT_FOLDER,
-                                        f"fold_{fold}_valid.csv"))
-    valid_dataset = PandaDataset(df=df_valid,
-                                 data=data,
-                                 transform=None)
     valid_dataloader = DataLoader(dataset=valid_dataset,
                                   batch_size=batch_size,
                                   num_workers=num_workers,

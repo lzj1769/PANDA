@@ -28,12 +28,12 @@ def parse_args():
                         help='use pre-trained model')
     parser.add_argument("--level", default=1, type=int,
                         help="which level to use, can only be 0, 1, 2")
-    parser.add_argument("--tile_size", default=256, type=int,
-                        help="size of tile, available are 128 and 256")
-    parser.add_argument("--num_tiles", default=16, type=int,
+    parser.add_argument("--patch_size", default=256, type=int,
+                        help="size of patch, available are 128 and 256")
+    parser.add_argument("--num_patches", default=16, type=int,
                         help="how many tiles for each image. Default: 12")
     parser.add_argument("--fold", type=int, default=0)
-    parser.add_argument("--num_workers", default=8, type=int,
+    parser.add_argument("--num_workers", default=36, type=int,
                         help="How many sub-processes to use for data.")
     parser.add_argument("--per_gpu_batch_size", default=6, type=int,
                         help="Batch size per GPU/CPU for training.")
@@ -74,21 +74,7 @@ def train(dataloader, model, criterion, optimizer, args):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
-        # preds.append(output.view(-1).detach().cpu().numpy())
-        # train_labels.append(target.detach().cpu().numpy())
         train_loss += loss.item() / len(dataloader)
-
-    # preds = np.concatenate(preds)
-    # train_labels = np.concatenate(train_labels)
-    #
-    # threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
-    #
-    # isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf],
-    #                     labels=[0, 1, 2, 3, 4, 5])
-    # score = utils.fast_qwk(isup_preds, train_labels)
-    # cm = confusion_matrix(train_labels, isup_preds)
-    # del preds
 
     return train_loss
 
@@ -100,7 +86,7 @@ def valid(dataloader, model, criterion, args):
         valid_loss = 0.0
         preds, valid_labels = [], []
         for i, (images, target) in enumerate(dataloader):
-            bs, num_tiles, c, h, w = images.size()
+            bs, num_patches, c, h, w = images.size()
 
             images = images.to(args.device)
             target = target.to(args.device)
@@ -110,7 +96,7 @@ def valid(dataloader, model, criterion, args):
                                   images.flip(-2), images.flip(-1, -2),
                                   images.transpose(-1, -2), images.transpose(-1, -2).flip(-1),
                                   images.transpose(-1, -2).flip(-2), images.transpose(-1, -2).flip(-1, -2)], 1)
-            images = images.view(-1, num_tiles, c, h, w)
+            images = images.view(-1, num_patches, c, h, w)
 
             output = model(images).view(bs, 8, -1).mean(1).view(-1)
             loss = criterion(output, target.float())
@@ -149,9 +135,9 @@ def main():
         print(f"available cuda: {args.n_gpus}")
 
     # Setup model
-    model = PandaNet(arch=args.arch, num_classes=1)
+    model = PandaNet(arch=args.arch, num_classes=1, num_patches=args.num_patches)
     model_path = os.path.join(configure.MODEL_PATH,
-                              f'{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}.pth')
+                              f'{args.arch}_fold_{args.fold}_{args.patch_size}_{args.num_patches}.pth')
     if args.resume:
         assert os.path.exists(model_path), "checkpoint does not exist"
         state_dict = torch.load(model_path)
@@ -169,19 +155,15 @@ def main():
     model.to(args.device)
 
     # Setup data
-    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    print(f"loading data: {current_time}")
-    filename = f"train_images_level_{args.level}_{args.tile_size}_{args.num_tiles}.npy"
-    data = np.load(os.path.join(configure.DATA_PATH, filename),
-                   allow_pickle=True)
-    print(f"data loaded: {datetime.now().strftime('%b%d_%H-%M-%S')}")
-
     total_batch_size = args.per_gpu_batch_size * args.n_gpus
     train_loader, valid_loader = datasets.get_dataloader(
-        data=data,
         fold=args.fold,
         batch_size=total_batch_size,
-        num_workers=args.num_workers)
+        num_workers=args.num_workers,
+        level=args.level,
+        patch_size=args.patch_size,
+        num_patches=args.num_patches
+    )
 
     # define loss function (criterion) and optimizer
     if args.loss == "l1":
@@ -199,7 +181,7 @@ def main():
 
     """ Train the model """
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    log_prefix = f'{current_time}_{args.arch}_fold_{args.fold}_{args.tile_size}_{args.num_tiles}'
+    log_prefix = f'{current_time}_{args.arch}_fold_{args.fold}_{args.patch_size}_{args.num_patches}'
     log_dir = os.path.join(configure.TRAINING_LOG_PATH,
                            log_prefix)
 
@@ -240,9 +222,7 @@ def main():
                      'train_loss': train_loss,
                      'valid_loss': valid_loss,
                      'valid_score': valid_score,
-                     'threshold': np.sort(threshold),
-                     'mean': data.item().get('mean'),
-                     'std': data.item().get('std')}
+                     'threshold': np.sort(threshold)}
             torch.save(state, model_path)
 
         current_time = datetime.now().strftime('%b%d_%H-%M-%S')

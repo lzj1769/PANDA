@@ -27,7 +27,7 @@ class Flatten(nn.Module):
 
 
 class PandaNet(nn.Module):
-    def __init__(self, arch, num_classes=1, pretrained=True):
+    def __init__(self, arch, num_classes=1, num_patches=None, pretrained=True):
         super().__init__()
 
         # load EfficientNet
@@ -59,27 +59,23 @@ class PandaNet(nn.Module):
                 self.base = inceptionresnetv2(pretrained=None)
             self.nc = self.base.last_linear.in_features
 
-        self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
-                                   Flatten(),
-                                   nn.BatchNorm1d(2 * self.nc),
-                                   nn.Dropout(0.5),
-                                   nn.Linear(2 * self.nc, 512),
-                                   Mish(),
-                                   nn.BatchNorm1d(512),
-                                   nn.Dropout(0.5),
-                                   nn.Linear(512, 1))
+        self.pool = nn.Sequential(AdaptiveConcatPool2d(1),
+                                  Flatten(),
+                                  nn.BatchNorm1d(2 * self.nc),
+                                  nn.Dropout(0.5),
+                                  nn.Linear(2 * self.nc, 1),
+                                  Mish())
+
+        self.fc = nn.Linear(num_patches, 1)
 
     def forward(self, x):
-        bs, num_tiles, c, h, w = x.size()
+        bs, num_patches, c, h, w = x.size()
 
         x = self.base.features(x.view(-1, c, h, w))  # bs*N x c x h x w
-        shape = x.shape
-
-        # concatenate the output for tiles into a single map
-        x = x.view(-1, num_tiles, shape[1], shape[2], shape[3]).permute(0, 2, 1, 3, 4).contiguous() \
-            .view(-1, shape[1], shape[2] * num_tiles, shape[3])
+        x = self.pool(x)
+        x = x.view(-1, num_patches)
 
         # Pooling and final linear layer
-        x = self.logit(x)
+        x = self.fc(x)
 
         return x

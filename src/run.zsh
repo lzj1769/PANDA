@@ -9,8 +9,8 @@ export CUDA_VISIBLE_DEVICES=0,1
 python train.py \
 --arch $1 \
 --level $2 \
---tile_size $3 \
---num_tile $4 \
+--patch_size $3 \
+--num_patches $4 \
 --fold $5 \
 --per_gpu_batch_size $6 \
 --pretrained \

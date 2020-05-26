@@ -124,6 +124,93 @@ def plot_to_image(figure):
     return image
 
 
+def get_patches(wsi, patch_size, num_patches=None, tissue_threshold=None):
+    """
+    Description
+    __________
+    Tilizer module made by @iafoss that can be found in the notebook:
+    https://www.kaggle.com/iafoss/panda-concat-tile-pooling-starter-inference
+    Takes a base image and returns the N tiles with the largest differnce
+    from a white backgound each with a given square size of input-sz.
+
+    Returns
+    __________
+    - List of size N with each item being a numpy array tile.
+    """
+
+    assert patch_size is not None, "patch size cannot be none"
+
+    # Get the shape of the input image
+    shape = wsi.shape
+
+    # Find the padding such that the image divides evenly by the desired size
+    pad0, pad1 = (patch_size - shape[0] % patch_size) % patch_size, (patch_size - shape[1] % patch_size) % patch_size
+
+    # Pad the image with blank space to reach the above found targets
+    wsi = np.pad(wsi,
+                 [[pad0 // 2, pad0 - pad0 // 2],
+                  [pad1 // 2, pad1 - pad1 // 2], [0, 0]],
+                 constant_values=255, mode="constant")
+
+    # Reshape and Transpose to get the images into tiles
+    patches = wsi.reshape(wsi.shape[0] // patch_size, patch_size, wsi.shape[1] // patch_size, patch_size, 3)
+    patches = patches.transpose(0, 2, 1, 3, 4).reshape(-1, patch_size, patch_size, 3)
+
+    if tissue_threshold:
+        idxs = []
+        for idx, patch in enumerate(patches):
+            summed_matrix = np.sum(patch, axis=-1)
+            num_white_pixels = np.count_nonzero(summed_matrix > 620)
+            ratio_tissue_pixels = 1 - num_white_pixels / (patch.shape[0] * patch.shape[1])
+
+            if ratio_tissue_pixels > tissue_threshold:
+                idxs.append(idx)
+
+        patches = patches[idxs]
+
+    if num_patches:
+        # If there are not enough tiles to meet desired N pad again
+        if len(patches) < num_patches:
+            patches = np.pad(patches,
+                             [[0, num_patches - len(patches)],
+                              [0, 0], [0, 0], [0, 0]],
+                             constant_values=255, mode="constant")
+
+        idxs = np.argsort(patches.reshape(patches.shape[0], -1).sum(-1))[:num_patches]
+        patches = patches[idxs]
+
+    return patches
+
+
+def color_cut(img, color=[255, 255, 255]):
+    """
+    Description
+    ----------
+    Take a input image and remove all rows or columns that
+    are only made of the input color [R,G,B]. The default color
+    to cut from image is white.
+
+    Parameters
+    ----------
+    input_slide: numpy array
+        Slide to cut white cols/rows
+    color: list
+        List of [R,G,B] pixels to cut from the input slide
+
+    Returns (1)
+    -------
+    - Numpy array of input_slide with white removed
+    """
+    # Remove by row
+    row_not_blank = [row.all() for row in ~np.all(img == color, axis=1)]
+    img = img[row_not_blank, :]
+
+    # Remove by col
+    col_not_blank = [col.all() for col in ~np.all(img == color, axis=0)]
+    img = img[:, col_not_blank]
+    return img
+
+
 if __name__ == "__main__":
     y_true = [1, 2, 3, 3, 4, 5, 0, 1, 2, 3, 4, 5]
     y_pred = np.array([-10, 2.3, 4.3, 4.5, 2.4, 4.4, 5.5, 2.7, 0.1, 0.3, 0.4, 3.7])

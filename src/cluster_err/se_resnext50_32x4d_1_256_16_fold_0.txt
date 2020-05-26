@@ -1,6 +1,0 @@
-(OK) Loading cuda 10.2.89
-(OK) Loading gcc system-default
-2020-05-25 10:00:49.954938: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 AVX512F FMA
-2020-05-25 10:00:50.315667: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2100000000 Hz
-2020-05-25 10:00:50.316072: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55efb580e6b0 executing computations on platform Host. Devices:
-2020-05-25 10:00:50.316087: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version

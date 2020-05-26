@@ -82,9 +82,8 @@ def tile(wsi, num_tiles=12, tile_size=256):
         num_white_pixels = np.count_nonzero(summed_matrix > 620)
         ratio_tissue_pixels = 1 - num_white_pixels / (patch.shape[0] * patch.shape[1])
 
-        print(ratio_tissue_pixels)
         # tissue_proportion = np.sum(~np.all(patch == [255, 255, 255], axis=-1)) / (patch.shape[0] * patch.shape[1])
-        if ratio_tissue_pixels > 0.5:
+        if ratio_tissue_pixels > 0.75:
             idxs.append(idx)
 
     # Sort the images by those with the lowest sum (i.e the least white)
@@ -101,10 +100,13 @@ if __name__ == "__main__":
 
     images = dict()
     mean, std = [], []
-    for image_id in df['image_id'].values.tolist()[:2]:
+    for image_id in df['image_id'].values.tolist()[13:15]:
         file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
         image = skimage.io.MultiImage(file_path)[0]
+        image = cv2.resize(image, (image.shape[0]//2, image.shape[1]//2))
+        print(image.shape)
         image = color_cut(image)
+        print(image.shape)
         images[image_id] = tile(image, tile_size=256)
 
         for i in range(images[image_id].shape[0]):
