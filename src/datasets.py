@@ -69,7 +69,7 @@ def get_transforms():
         #     IAAEmboss(),
         #     RandomBrightnessContrast(),
         # ], p=0.3),
-        HueSaturationValue(p=0.3),
+        # HueSaturationValue(p=0.3),
     ])
 
 

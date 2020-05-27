@@ -1,0 +1,2 @@
+available cuda: 2
+training started: May27_09-59-53
