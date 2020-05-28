@@ -62,7 +62,7 @@ def get_transforms():
         #     MedianBlur(blur_limit=3, p=0.1),
         #     Blur(blur_limit=3, p=0.1),
         # ], p=0.2),
-        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
+        # ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
         # OneOf([
         #     CLAHE(clip_limit=2),
         #     IAASharpen(),
