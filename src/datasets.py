@@ -36,12 +36,31 @@ class PandaDataset(Dataset):
                                   patch_size=self.patch_size,
                                   num_patches=self.num_patches)
 
-        if self.transform:
-            for i in range(image.shape[0]):
-                image[i] = self.transform(image=image[i])['image']
+        # if self.transform:
+        #     for i in range(image.shape[0]):
+        #         image[i] = self.transform(image=image[i])['image']
 
-        image = torch.from_numpy(image / 255.0).float()
+        image = torch.from_numpy(1 - image / 255.0).float()
         image = image.permute(0, 3, 1, 2)
+
+        # image augment
+        # t = np.random.choice(8, 1)
+        # if t[0] == 0:
+        #     image = image
+        # elif t[0] == 1:
+        #     image = image.flip(-1)
+        # elif t[0] == 2:
+        #     image = image.flip(-2)
+        # elif t[0] == 3:
+        #     image = image.flip(-1, -2)
+        # elif t[0] == 4:
+        #     image = image.transpose(-1, -2)
+        # elif t[0] == 5:
+        #     image = image.transpose(-1, -2).flip(-1)
+        # elif t[0] == 6:
+        #     image = image.transpose(-1, -2).flip(-2)
+        # elif t[0] == 7:
+        #     image = image.transpose(-1, -2).flip(-1, -2)
 
         label = self.df['isup_grade'].values[idx]
 
@@ -53,23 +72,23 @@ def get_transforms():
         RandomRotate90(p=0.5),
         Flip(p=0.5),
         Transpose(p=0.5),
-        # OneOf([
-        #     IAAAdditiveGaussianNoise(),
-        #     GaussNoise(),
-        # ], p=0.2),
-        # OneOf([
-        #     MotionBlur(p=.2),
-        #     MedianBlur(blur_limit=3, p=0.1),
-        #     Blur(blur_limit=3, p=0.1),
-        # ], p=0.2),
-        # ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
-        # OneOf([
-        #     CLAHE(clip_limit=2),
-        #     IAASharpen(),
-        #     IAAEmboss(),
-        #     RandomBrightnessContrast(),
-        # ], p=0.3),
-        # HueSaturationValue(p=0.3),
+        OneOf([
+            IAAAdditiveGaussianNoise(),
+            GaussNoise(),
+        ], p=0.2),
+        OneOf([
+            MotionBlur(p=.2),
+            MedianBlur(blur_limit=3, p=0.1),
+            Blur(blur_limit=3, p=0.1),
+        ], p=0.2),
+        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
+        OneOf([
+            CLAHE(clip_limit=2),
+            IAASharpen(),
+            IAAEmboss(),
+            RandomBrightnessContrast(),
+        ], p=0.3),
+        HueSaturationValue(p=0.3),
     ])
 
 

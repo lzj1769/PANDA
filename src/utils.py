@@ -182,33 +182,14 @@ def get_patches(wsi, patch_size, num_patches=None, tissue_threshold=None):
     return patches
 
 
-def color_cut(img, color=[255, 255, 255]):
-    """
-    Description
-    ----------
-    Take a input image and remove all rows or columns that
-    are only made of the input color [R,G,B]. The default color
-    to cut from image is white.
-
-    Parameters
-    ----------
-    input_slide: numpy array
-        Slide to cut white cols/rows
-    color: list
-        List of [R,G,B] pixels to cut from the input slide
-
-    Returns (1)
-    -------
-    - Numpy array of input_slide with white removed
-    """
-    # Remove by row
-    row_not_blank = [row.all() for row in ~np.all(img == color, axis=1)]
-    img = img[row_not_blank, :]
-
-    # Remove by col
-    col_not_blank = [col.all() for col in ~np.all(img == color, axis=0)]
-    img = img[:, col_not_blank]
-    return img
+def crop_white(image):
+    assert image.shape[2] == 3
+    assert image.dtype == np.uint8
+    ys, = (image.min((1, 2)) != 255).nonzero()
+    xs, = (image.min(0).min(1) != 255).nonzero()
+    if len(xs) == 0 or len(ys) == 0:
+        return image
+    return image[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
 
 
 if __name__ == "__main__":
@@ -218,15 +199,15 @@ if __name__ == "__main__":
     from PIL import Image
 
     df = pd.read_csv(configure.TRAIN_DF)
-    print(len(df))
-    image_id = df['image_id'].values.tolist()[999]
+    image_id = df['image_id'].values.tolist()[121]
     file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
     image = skimage.io.MultiImage(file_path)[0]
-    print(image.shape)
+    image = crop_white(image)
     patches = get_patches(image, patch_size=512, num_patches=128)
 
     for i in range(patches.shape[0]):
-        img = Image.fromarray(cv2.resize(patches[i], (128, 128)))
+        # img = Image.fromarray(cv2.resize(patches[i], (128, 128)))
+        img = Image.fromarray(patches[i])
         img.save(f'{image_id}_{i}.png')
 
     exit(0)

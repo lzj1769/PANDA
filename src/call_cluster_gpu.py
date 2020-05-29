@@ -1,7 +1,7 @@
 import subprocess
 
-model_list = ['inceptionv4', 'inceptionresnetv2']
-fold_list = [0]
+model_list = ['se_resnext50_32x4d']
+fold_list = [1]
 
 batch_size = {'se_resnext50_32x4d': 5,
               'se_resnext101_32x4d': 6,

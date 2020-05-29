@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from inceptionv4 import inceptionv4
 from inceptionresnetv2 import inceptionresnetv2
@@ -23,6 +24,32 @@ class Flatten(nn.Module):
 
     def forward(self, x):
         return x.view(x.size(0), -1)
+
+
+class Mish(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return x * (torch.tanh(F.softplus(x)))
+
+
+class SELayer(nn.Module):
+    def __init__(self, num_patches, reduction=4):
+        super(SELayer, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool3d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(num_patches, num_patches // reduction, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Linear(num_patches // reduction, num_patches, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, n, _, _, _ = x.size()
+        y = self.avg_pool(x).view(b, n)
+        y = self.fc(y).view(b, n, 1, 1, 1)
+        return x * y.expand_as(x)
 
 
 class PandaNet(nn.Module):
@@ -58,12 +85,13 @@ class PandaNet(nn.Module):
         self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
                                    Flatten(),
                                    nn.BatchNorm1d(2 * self.nc),
-                                   nn.Dropout(0.5),
+                                   nn.Dropout(0.2),
                                    nn.Linear(2 * self.nc, 512),
-                                   nn.ReLU(inplace=True),
+                                   Mish(),
                                    nn.BatchNorm1d(512),
-                                   nn.Dropout(0.5),
+                                   nn.Dropout(0.2),
                                    nn.Linear(512, 1))
+        # self.se = SELayer(num_patches=16)
 
     def forward(self, x):
         bs, num_patches, c, h, w = x.size()
@@ -71,9 +99,11 @@ class PandaNet(nn.Module):
         x = self.base.features(x.view(-1, c, h, w))  # bs*N x c x h x w
         shape = x.shape
 
+        x = x.view(-1, num_patches, shape[1], shape[2], shape[3])  # bs x N x c x h x w
+        # x = self.se(x)
+
         # concatenate the output for tiles into a single map
-        x = x.view(-1, num_patches, shape[1], shape[2], shape[3]).permute(0, 2, 1, 3, 4).contiguous() \
-            .view(-1, shape[1], shape[2] * num_patches, shape[3])
+        x = x.permute(0, 2, 1, 3, 4).contiguous().view(-1, shape[1], shape[2] * num_patches, shape[3])
 
         # Pooling and final linear layer
         x = self.logit(x)
