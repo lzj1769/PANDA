@@ -31,40 +31,26 @@ class PandaDataset(Dataset):
     def __getitem__(self, idx):
         image_id = self.df['image_id'].values[idx]
         file_path = f'{self.data_dir}/{image_id}.tiff'
-        image = skimage.io.MultiImage(file_path)[self.level]
-        image = utils.get_patches(image,
-                                  patch_size=self.patch_size,
-                                  num_patches=self.num_patches)
+        wsi = skimage.io.MultiImage(file_path)[self.level]
+        patches = utils.get_patches(wsi,
+                                    patch_size=self.patch_size,
+                                    num_patches=self.num_patches)
 
-        # if self.transform:
-        #     for i in range(image.shape[0]):
-        #         image[i] = self.transform(image=image[i])['image']
+        # resize
+        patches_resize = np.empty(shape=(patches.shape[0], 128, 128, 3), dtype=np.uint8)
+        for i in range(patches.shape[0]):
+            patches_resize[i] = cv2.resize(patches[i], (128, 128))
 
-        image = torch.from_numpy(1 - image / 255.0).float()
-        image = image.permute(0, 3, 1, 2)
+        if self.transform:
+            for i in range(patches_resize.shape[0]):
+                patches_resize[i] = self.transform(image=patches_resize[i])['image']
 
-        # image augment
-        # t = np.random.choice(8, 1)
-        # if t[0] == 0:
-        #     image = image
-        # elif t[0] == 1:
-        #     image = image.flip(-1)
-        # elif t[0] == 2:
-        #     image = image.flip(-2)
-        # elif t[0] == 3:
-        #     image = image.flip(-1, -2)
-        # elif t[0] == 4:
-        #     image = image.transpose(-1, -2)
-        # elif t[0] == 5:
-        #     image = image.transpose(-1, -2).flip(-1)
-        # elif t[0] == 6:
-        #     image = image.transpose(-1, -2).flip(-2)
-        # elif t[0] == 7:
-        #     image = image.transpose(-1, -2).flip(-1, -2)
+        patches = torch.from_numpy(1 - patches_resize / 255.0).float()
+        patches = patches.permute(0, 3, 1, 2)
 
         label = self.df['isup_grade'].values[idx]
 
-        return image, label
+        return patches, label
 
 
 def get_transforms():

@@ -124,7 +124,7 @@ def plot_to_image(figure):
     return image
 
 
-def get_patches(wsi, patch_size, num_patches=None, tissue_threshold=None):
+def get_patches(wsi, patch_size=None, num_patches=None):
     """
     Description
     __________
@@ -156,30 +156,16 @@ def get_patches(wsi, patch_size, num_patches=None, tissue_threshold=None):
     patches = wsi.reshape(wsi.shape[0] // patch_size, patch_size, wsi.shape[1] // patch_size, patch_size, 3)
     patches = patches.transpose(0, 2, 1, 3, 4).reshape(-1, patch_size, patch_size, 3)
 
-    if tissue_threshold:
-        idxs = []
-        for idx, patch in enumerate(patches):
-            summed_matrix = np.sum(patch, axis=-1)
-            num_white_pixels = np.count_nonzero(summed_matrix > 620)
-            ratio_tissue_pixels = 1 - num_white_pixels / (patch.shape[0] * patch.shape[1])
+    # If there are not enough tiles to meet desired N pad again
+    if len(patches) < num_patches:
+        patches = np.pad(patches,
+                         [[0, num_patches - len(patches)],
+                          [0, 0], [0, 0], [0, 0]],
+                         constant_values=255, mode="constant")
 
-            if ratio_tissue_pixels > tissue_threshold:
-                idxs.append(idx)
+    idxs = np.argsort(patches.reshape(patches.shape[0], -1).sum(-1))[:num_patches]
 
-        patches = patches[idxs]
-
-    if num_patches:
-        # If there are not enough tiles to meet desired N pad again
-        if len(patches) < num_patches:
-            patches = np.pad(patches,
-                             [[0, num_patches - len(patches)],
-                              [0, 0], [0, 0], [0, 0]],
-                             constant_values=255, mode="constant")
-
-        idxs = np.argsort(patches.reshape(patches.shape[0], -1).sum(-1))[:num_patches]
-        patches = patches[idxs]
-
-    return patches
+    return patches[idxs]
 
 
 def crop_white(image):
