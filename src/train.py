@@ -131,6 +131,7 @@ def main():
         exit(0)
     else:
         args.device = torch.device("cuda")
+        torch.backends.cudnn.benchmark = True
         args.n_gpus = torch.cuda.device_count()
         print(f"available cuda: {args.n_gpus}")
 

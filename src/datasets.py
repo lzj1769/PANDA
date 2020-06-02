@@ -30,22 +30,13 @@ class PandaDataset(Dataset):
 
     def __getitem__(self, idx):
         image_id = self.df['image_id'].values[idx]
-        file_path = f'{self.data_dir}/{image_id}.tiff'
-        wsi = skimage.io.MultiImage(file_path)[self.level]
-        patches = utils.get_patches(wsi,
-                                    patch_size=self.patch_size,
-                                    num_patches=self.num_patches)
-
-        # resize
-        patches_resize = np.empty(shape=(patches.shape[0], 128, 128, 3), dtype=np.uint8)
-        for i in range(patches.shape[0]):
-            patches_resize[i] = cv2.resize(patches[i], (128, 128))
+        patches = np.load(f"{configure.PATCH_PATH}/{image_id}.npy")
 
         if self.transform:
-            for i in range(patches_resize.shape[0]):
-                patches_resize[i] = self.transform(image=patches_resize[i])['image']
+            for i in range(patches.shape[0]):
+                patches[i] = self.transform(image=patches[i])['image']
 
-        patches = torch.from_numpy(1 - patches_resize / 255.0).float()
+        patches = torch.from_numpy(1 - patches / 255.0).float()
         patches = patches.permute(0, 3, 1, 2)
 
         label = self.df['isup_grade'].values[idx]

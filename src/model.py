@@ -91,6 +91,7 @@ class PandaNet(nn.Module):
                                    nn.BatchNorm1d(512),
                                    nn.Dropout(0.2),
                                    nn.Linear(512, 1))
+
         # self.se = SELayer(num_patches=16)
 
     def forward(self, x):
