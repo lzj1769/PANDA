@@ -1,3 +1,6 @@
 (OK) Loading cuda 10.2.89
 (OK) Loading gcc system-default
-slurmstepd: error: *** JOB 14244754 ON ncg29 CANCELLED AT 2020-06-02T08:49:20 ***
+2020-06-03 09:16:45.938312: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 AVX512F FMA
+2020-06-03 09:16:45.956571: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2100000000 Hz
+2020-06-03 09:16:45.958430: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x5600a9074b50 executing computations on platform Host. Devices:
+2020-06-03 09:16:45.958449: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version

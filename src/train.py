@@ -108,11 +108,10 @@ def valid(dataloader, model, criterion, args):
         preds = np.concatenate(preds)
         valid_labels = np.concatenate(valid_labels)
 
-        threshold = utils.find_threshold(y_true=valid_labels,
-                                         y_pred=preds)
+        threshold = utils.find_threshold(y_true=valid_labels, y_pred=preds)
+        # threshold = [0.5, 1.5, 2.5, 3.5, 4.5]
 
-        isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf],
-                            labels=[0, 1, 2, 3, 4, 5])
+        isup_preds = pd.cut(preds, [-np.inf] + list(np.sort(threshold)) + [np.inf], labels=[0, 1, 2, 3, 4, 5])
         score = utils.fast_qwk(isup_preds, valid_labels)
         cm = confusion_matrix(valid_labels, isup_preds)
 
@@ -131,7 +130,6 @@ def main():
         exit(0)
     else:
         args.device = torch.device("cuda")
-        torch.backends.cudnn.benchmark = True
         args.n_gpus = torch.cuda.device_count()
         print(f"available cuda: {args.n_gpus}")
 

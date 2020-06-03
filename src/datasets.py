@@ -30,7 +30,13 @@ class PandaDataset(Dataset):
 
     def __getitem__(self, idx):
         image_id = self.df['image_id'].values[idx]
-        patches = np.load(f"{configure.PATCH_PATH}/{image_id}.npy")
+        # patches = np.load(f"{configure.PATCH_PATH}/{image_id}.npy")
+
+        file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
+        wsi = skimage.io.MultiImage(file_path)[self.level]
+        patches = utils.get_patches(wsi,
+                                    patch_size=self.patch_size,
+                                    num_patches=self.num_patches)
 
         if self.transform:
             for i in range(patches.shape[0]):

@@ -92,8 +92,6 @@ class PandaNet(nn.Module):
                                    nn.Dropout(0.2),
                                    nn.Linear(512, 1))
 
-        # self.se = SELayer(num_patches=16)
-
     def forward(self, x):
         bs, num_patches, c, h, w = x.size()
 
@@ -101,7 +99,6 @@ class PandaNet(nn.Module):
         shape = x.shape
 
         x = x.view(-1, num_patches, shape[1], shape[2], shape[3])  # bs x N x c x h x w
-        # x = self.se(x)
 
         # concatenate the output for tiles into a single map
         x = x.permute(0, 2, 1, 3, 4).contiguous().view(-1, shape[1], shape[2] * num_patches, shape[3])

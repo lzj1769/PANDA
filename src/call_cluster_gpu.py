@@ -9,8 +9,8 @@ batch_size = {'se_resnext50_32x4d': 5,
               'inceptionresnetv2': 4}
 
 level = 1
-patch_size = 256
-num_patches = 16
+patch_size = 128
+num_patches = 64
 
 for model in model_list:
     for fold in fold_list:
@@ -18,7 +18,7 @@ for model in model_list:
         subprocess.run(["sbatch", "-J", job_name,
                         "-o", f"./cluster_out/{job_name}.txt",
                         "-e", f"./cluster_err/{job_name}.txt",
-                        "--time", "60:00:00",
+                        "--time", "24:00:00",
                         "--mem", "180G",
                         "-c", "48",
                         "-A", "rwth0455",

@@ -18,6 +18,8 @@ def get_patches(image_id, patch_size=512, num_patches=128):
     from a white backgound each with a given square size of input-sz.
     """
     assert patch_size is not None, "patch size cannot be none"
+    if os.path.exists(f"{configure.PATCH_PATH}/{image_id}.npy"):
+        return 0
 
     # Get the shape of the input image
     file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
