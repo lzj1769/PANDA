@@ -172,9 +172,9 @@ def main():
     elif args.loss == "smooth_l1":
         criterion = torch.nn.SmoothL1Loss()
 
-    optimizer = torch.optim.Adam(model.parameters(),
-                                 lr=args.learning_rate,
-                                 weight_decay=args.weight_decay)
+    optimizer = torch.optim.AdamW(model.parameters(),
+                                  lr=args.learning_rate,
+                                  weight_decay=args.weight_decay)
 
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
 
