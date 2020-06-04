@@ -8,7 +8,7 @@ from PIL import Image
 import configure
 
 
-def get_patches(image_id, patch_size=512, num_patches=128):
+def get_patches(image_id, patch_size=128, num_patches=128):
     """
     Description
     __________
@@ -48,12 +48,6 @@ def get_patches(image_id, patch_size=512, num_patches=128):
 
     idxs = np.argsort(patches.reshape(patches.shape[0], -1).sum(-1))[:num_patches]
     patches = patches[idxs]
-
-    patches_resize = np.empty(shape=(patches.shape[0], 128, 128, 3), dtype=np.uint8)
-    for i in range(patches.shape[0]):
-        patches_resize[i] = cv2.resize(patches[i], (128, 128))
-    patches = patches_resize
-
     np.save(f"{configure.PATCH_PATH}/{image_id}.npy", patches)
 
 
@@ -61,6 +55,5 @@ if __name__ == "__main__":
     from multiprocessing import Pool
 
     df = pd.read_csv(configure.TRAIN_DF)
-
     with Pool(48) as p:
         p.map(get_patches, df['image_id'].values.tolist())

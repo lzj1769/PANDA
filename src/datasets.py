@@ -1,16 +1,9 @@
 import os
 import pandas as pd
-import numpy as np
 import torch
 import skimage.io
-import cv2
 from torch.utils.data import Dataset, DataLoader
-from albumentations import (
-    CLAHE, RandomRotate90,
-    Transpose, ShiftScaleRotate, Blur, HueSaturationValue,
-    IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, MedianBlur, RandomBrightnessContrast, IAAPiecewiseAffine,
-    IAASharpen, IAAEmboss, Flip, OneOf, Compose
-)
+from albumentations import VerticalFlip, HorizontalFlip, Transpose, ShiftScaleRotate, Compose
 
 import configure
 import utils
@@ -52,10 +45,10 @@ class PandaDataset(Dataset):
 
 def get_transforms():
     return Compose([
-        RandomRotate90(p=0.5),
-        Flip(p=0.5),
         Transpose(p=0.5),
-        ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=90, p=0.5),
+        VerticalFlip(p=0.5),
+        HorizontalFlip(p=0.5),
+        ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=90, p=0.2)
     ])
 
 

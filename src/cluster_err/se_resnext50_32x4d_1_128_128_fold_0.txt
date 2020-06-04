@@ -1,49 +1,6 @@
 (OK) Loading cuda 10.2.89
 (OK) Loading gcc system-default
-Traceback (most recent call last):
-  File "train.py", line 243, in <module>
-    main()
-  File "train.py", line 198, in main
-    args=args)
-  File "train.py", line 70, in train
-    output = model(images)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/parallel/data_parallel.py", line 152, in forward
-    outputs = self.parallel_apply(replicas, inputs, kwargs)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/parallel/data_parallel.py", line 162, in parallel_apply
-    return parallel_apply(replicas, inputs, kwargs, self.device_ids[:len(replicas)])
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/parallel/parallel_apply.py", line 85, in parallel_apply
-    output.reraise()
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/_utils.py", line 394, in reraise
-    raise self.exc_type(msg)
-RuntimeError: Caught RuntimeError in replica 0 on device 0.
-Original Traceback (most recent call last):
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/parallel/parallel_apply.py", line 60, in _worker
-    output = module(*input, **kwargs)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/rwthfs/rz/cluster/home/rs619065/kaggle/PANDA/src/model.py", line 100, in forward
-    x = self.base.features(x.view(-1, c, h, w))  # bs*N x c x h x w
-  File "/rwthfs/rz/cluster/home/rs619065/kaggle/PANDA/src/senet.py", line 350, in features
-    x = self.layer2(x)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/container.py", line 100, in forward
-    input = module(input)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/rwthfs/rz/cluster/home/rs619065/kaggle/PANDA/src/senet.py", line 126, in forward
-    residual = self.downsample(x)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/container.py", line 100, in forward
-    input = module(input)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
-    result = self.forward(*input, **kwargs)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/modules/batchnorm.py", line 107, in forward
-    exponential_average_factor, self.eps)
-  File "/home/rs619065/miniconda3/envs/kaggle/lib/python3.6/site-packages/torch/nn/functional.py", line 1670, in batch_norm
-    training, momentum, eps, torch.backends.cudnn.enabled
-RuntimeError: CUDA out of memory. Tried to allocate 320.00 MiB (GPU 0; 15.78 GiB total capacity; 14.57 GiB already allocated; 156.19 MiB free; 14.59 GiB reserved in total by PyTorch)
-
+2020-06-04 11:03:06.506155: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 AVX512F FMA
+2020-06-04 11:03:06.523419: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2100000000 Hz
+2020-06-04 11:03:06.525215: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x560b4a70f9f0 executing computations on platform Host. Devices:
+2020-06-04 11:03:06.525234: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version
