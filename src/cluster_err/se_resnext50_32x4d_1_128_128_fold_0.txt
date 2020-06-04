@@ -4,3 +4,4 @@
 2020-06-04 11:03:06.523419: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2100000000 Hz
 2020-06-04 11:03:06.525215: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x560b4a70f9f0 executing computations on platform Host. Devices:
 2020-06-04 11:03:06.525234: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version
+slurmstepd: error: *** JOB 14350542 ON ncg27 CANCELLED AT 2020-06-04T11:31:35 ***

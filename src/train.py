@@ -52,7 +52,7 @@ def parse_args():
     parser.add_argument("--resume",
                         action="store_true",
                         help='training model from check point')
-    parser.add_argument("--epochs", default=100, type=int,
+    parser.add_argument("--epochs", default=50, type=int,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
 
@@ -176,7 +176,7 @@ def main():
                                   lr=args.learning_rate,
                                   weight_decay=args.weight_decay)
 
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
 
     """ Train the model """
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')

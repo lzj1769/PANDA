@@ -1,10 +1,29 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.parameter import Parameter
 
 from inceptionv4 import inceptionv4
 from inceptionresnetv2 import inceptionresnetv2
 from senet import se_resnext50_32x4d, se_resnext101_32x4d
+
+
+def gem(x, p=3, eps=1e-6):
+    return F.avg_pool2d(x.clamp(min=eps).pow(p), (x.size(-2), x.size(-1))).pow(1. / p)
+
+
+class GeM(nn.Module):
+    def __init__(self, p=3, eps=1e-6):
+        super(GeM, self).__init__()
+        self.p = Parameter(torch.ones(1) * p)
+        self.eps = eps
+
+    def forward(self, x):
+        return gem(x, p=self.p, eps=self.eps)
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(' + 'p=' + '{:.4f}'.format(self.p.data.tolist()[0]) + ', ' + 'eps=' + str(
+            self.eps) + ')'
 
 
 class AdaptiveConcatPool2d(nn.Module):
@@ -34,22 +53,26 @@ class Mish(nn.Module):
         return x * (torch.tanh(F.softplus(x)))
 
 
-class SELayer(nn.Module):
-    def __init__(self, num_patches, reduction=4):
-        super(SELayer, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool3d(1)
-        self.fc = nn.Sequential(
-            nn.Linear(num_patches, num_patches // reduction, bias=False),
-            nn.ReLU(inplace=True),
-            nn.Linear(num_patches // reduction, num_patches, bias=False),
-            nn.Sigmoid()
-        )
+class SEModule(nn.Module):
+
+    def __init__(self, channels, reduction):
+        super(SEModule, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc1 = nn.Conv2d(channels, channels // reduction, kernel_size=1,
+                             padding=0)
+        self.relu = nn.ReLU(inplace=True)
+        self.fc2 = nn.Conv2d(channels // reduction, channels, kernel_size=1,
+                             padding=0)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        b, n, _, _, _ = x.size()
-        y = self.avg_pool(x).view(b, n)
-        y = self.fc(y).view(b, n, 1, 1, 1)
-        return x * y.expand_as(x)
+        module_input = x
+        x = self.avg_pool(x)
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        x = self.sigmoid(x)
+        return module_input * x
 
 
 class PandaNet(nn.Module):
@@ -92,6 +115,8 @@ class PandaNet(nn.Module):
                                    nn.Dropout(0.2),
                                    nn.Linear(512, 1))
 
+        self.se = SEModule(channels=2048, reduction=16)
+
     def forward(self, x):
         bs, num_patches, c, h, w = x.size()
 
@@ -104,6 +129,7 @@ class PandaNet(nn.Module):
         x = x.permute(0, 2, 1, 3, 4).contiguous().view(-1, shape[1], shape[2] * num_patches, shape[3])
 
         # Pooling and final linear layer
+        x = self.se(x)
         x = self.logit(x)
 
         return x

@@ -18,7 +18,7 @@ for model in model_list:
         subprocess.run(["sbatch", "-J", job_name,
                         "-o", f"./cluster_out/{job_name}.txt",
                         "-e", f"./cluster_err/{job_name}.txt",
-                        "--time", "24:00:00",
+                        "--time", "12:00:00",
                         "--mem", "180G",
                         "-c", "48",
                         "-A", "rwth0455",

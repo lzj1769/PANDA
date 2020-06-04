@@ -47,8 +47,7 @@ def get_transforms():
     return Compose([
         Transpose(p=0.5),
         VerticalFlip(p=0.5),
-        HorizontalFlip(p=0.5),
-        ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=90, p=0.2)
+        HorizontalFlip(p=0.5)
     ])
 
 
