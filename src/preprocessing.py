@@ -8,7 +8,7 @@ from PIL import Image
 import configure
 
 
-def get_patches(image_id, patch_size=128, num_patches=128):
+def get_patches(image_id, patch_size=256, num_patches=32):
     """
     Description
     __________
@@ -23,7 +23,7 @@ def get_patches(image_id, patch_size=128, num_patches=128):
 
     # Get the shape of the input image
     file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
-    wsi = skimage.io.MultiImage(file_path)[0]
+    wsi = skimage.io.MultiImage(file_path)[1]
     shape = wsi.shape
 
     # Find the padding such that the image divides evenly by the desired size

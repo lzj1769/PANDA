@@ -9,8 +9,8 @@ batch_size = {'se_resnext50_32x4d': 5,
               'inceptionresnetv2': 4}
 
 level = 1
-patch_size = 128
-num_patches = 64
+patch_size = 256
+num_patches = 16
 
 for model in model_list:
     for fold in fold_list:

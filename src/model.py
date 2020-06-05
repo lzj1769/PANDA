@@ -53,28 +53,6 @@ class Mish(nn.Module):
         return x * (torch.tanh(F.softplus(x)))
 
 
-class SEModule(nn.Module):
-
-    def __init__(self, channels, reduction):
-        super(SEModule, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.fc1 = nn.Conv2d(channels, channels // reduction, kernel_size=1,
-                             padding=0)
-        self.relu = nn.ReLU(inplace=True)
-        self.fc2 = nn.Conv2d(channels // reduction, channels, kernel_size=1,
-                             padding=0)
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        module_input = x
-        x = self.avg_pool(x)
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.fc2(x)
-        x = self.sigmoid(x)
-        return module_input * x
-
-
 class PandaNet(nn.Module):
     def __init__(self, arch, pretrained=True):
         super().__init__()
@@ -105,17 +83,15 @@ class PandaNet(nn.Module):
                 self.base = inceptionresnetv2(pretrained=None)
             self.nc = self.base.last_linear.in_features
 
-        self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
+        self.logit = nn.Sequential(GeM(),
                                    Flatten(),
-                                   nn.BatchNorm1d(2 * self.nc),
+                                   nn.BatchNorm1d(self.nc),
                                    nn.Dropout(0.2),
-                                   nn.Linear(2 * self.nc, 512),
+                                   nn.Linear(self.nc, 512),
                                    Mish(),
                                    nn.BatchNorm1d(512),
                                    nn.Dropout(0.2),
                                    nn.Linear(512, 1))
-
-        self.se = SEModule(channels=2048, reduction=16)
 
     def forward(self, x):
         bs, num_patches, c, h, w = x.size()
@@ -129,7 +105,6 @@ class PandaNet(nn.Module):
         x = x.permute(0, 2, 1, 3, 4).contiguous().view(-1, shape[1], shape[2] * num_patches, shape[3])
 
         # Pooling and final linear layer
-        x = self.se(x)
         x = self.logit(x)
 
         return x
