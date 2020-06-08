@@ -1,11 +1,17 @@
 import os
 import pandas as pd
 import torch
-import numpy as np
+import skimage.io
 from torch.utils.data import Dataset, DataLoader
-from albumentations import VerticalFlip, HorizontalFlip, Transpose, Compose
+from albumentations import (
+    CLAHE, RandomRotate90,
+    Transpose, ShiftScaleRotate, Blur, HueSaturationValue,
+    IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, MedianBlur, RandomBrightnessContrast, IAAPiecewiseAffine,
+    IAASharpen, IAAEmboss, Flip, OneOf, Compose
+)
 
 import configure
+import utils
 
 
 class PandaDataset(Dataset):
@@ -21,29 +27,19 @@ class PandaDataset(Dataset):
 
     def __getitem__(self, idx):
         image_id = self.df['image_id'].values[idx]
-        images = np.load(f"{configure.PATCH_PATH}/{image_id}.npy")[:self.num_patches]
+        file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
+        wsi = skimage.io.MultiImage(file_path)[self.level]
+        wsi = utils.crop_white(wsi)
+        images = utils.get_patches(wsi,
+                                   patch_size=self.patch_size,
+                                   num_patches=self.num_patches)
+
+        if self.transform:
+            for i in range(images.shape[0]):
+                images[i] = self.transform(image=images[i])['image']
 
         images = torch.from_numpy(1 - images / 255.0).float()
         images = images.permute(0, 3, 1, 2)
-
-        if self.transform:
-            choice = np.random.choice(8, 1)[0]
-            if choice == 0:
-                images = images.flip(-1)
-            elif choice == 1:
-                images = images.flip(-2)
-            elif choice == 2:
-                images = images.flip(-1, -2)
-            elif choice == 3:
-                images = images.transpose(-1, -2)
-            elif choice == 4:
-                images = images.transpose(-1, -2).flip(-1)
-            elif choice == 5:
-                images = images.transpose(-1, -2).flip(-2)
-            elif choice == 6:
-                images = images.transpose(-1, -2).flip(-1, -2)
-            elif choice == 7:
-                images = images
 
         label = self.df['isup_grade'].values[idx]
 
@@ -52,9 +48,26 @@ class PandaDataset(Dataset):
 
 def get_transforms():
     return Compose([
+        RandomRotate90(p=0.5),
+        Flip(p=0.5),
         Transpose(p=0.5),
-        VerticalFlip(p=0.5),
-        HorizontalFlip(p=0.5)
+        OneOf([
+            IAAAdditiveGaussianNoise(),
+            GaussNoise(),
+        ], p=0.2),
+        OneOf([
+            MotionBlur(p=.2),
+            MedianBlur(blur_limit=3, p=0.1),
+            Blur(blur_limit=3, p=0.1),
+        ], p=0.2),
+        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
+        OneOf([
+            CLAHE(clip_limit=2),
+            IAASharpen(),
+            IAAEmboss(),
+            RandomBrightnessContrast(),
+        ], p=0.3),
+        HueSaturationValue(p=0.3),
     ])
 
 
@@ -69,13 +82,13 @@ def get_dataloader(fold, batch_size, level, patch_size, num_patches, num_workers
                                  level=level,
                                  patch_size=patch_size,
                                  num_patches=num_patches,
-                                 transform=True)
+                                 transform=get_transforms())
 
     valid_dataset = PandaDataset(df=df_valid,
                                  level=level,
                                  patch_size=patch_size,
                                  num_patches=num_patches,
-                                 transform=False)
+                                 transform=None)
 
     train_dataloader = DataLoader(dataset=train_dataset,
                                   batch_size=batch_size,

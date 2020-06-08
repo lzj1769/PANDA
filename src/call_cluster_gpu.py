@@ -1,16 +1,16 @@
 import subprocess
 
 model_list = ['se_resnext50_32x4d']
-fold_list = [0]
+fold_list = [0, 1, 2, 3, 4]
 
-batch_size = {'se_resnext50_32x4d': 5,
+batch_size = {'se_resnext50_32x4d': 4,
               'se_resnext101_32x4d': 3,
               'inceptionv4': 6,
               'inceptionresnetv2': 4}
 
 level = 1
-patch_size = 256
-num_patches = 16
+patch_size = 128
+num_patches = 80
 
 for model in model_list:
     for fold in fold_list:

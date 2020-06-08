@@ -1,3 +1,0 @@
-(OK) Loading gcc system-default
-slurmstepd: error: *** JOB 14265381 ON ncm0431 CANCELLED AT 2020-06-02T17:56:41 DUE TO TIME LIMIT ***
-slurmstepd: error: Detected 12457 oom-kill event(s) in step 14265381.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.
