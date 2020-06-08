@@ -1,29 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.parameter import Parameter
 
 from inceptionv4 import inceptionv4
 from inceptionresnetv2 import inceptionresnetv2
 from senet import se_resnext50_32x4d, se_resnext101_32x4d
-
-
-def gem(x, p=3, eps=1e-6):
-    return F.avg_pool2d(x.clamp(min=eps).pow(p), (x.size(-2), x.size(-1))).pow(1. / p)
-
-
-class GeM(nn.Module):
-    def __init__(self, p=3, eps=1e-6):
-        super(GeM, self).__init__()
-        self.p = Parameter(torch.ones(1) * p)
-        self.eps = eps
-
-    def forward(self, x):
-        return gem(x, p=self.p, eps=self.eps)
-
-    def __repr__(self):
-        return self.__class__.__name__ + '(' + 'p=' + '{:.4f}'.format(self.p.data.tolist()[0]) + ', ' + 'eps=' + str(
-            self.eps) + ')'
 
 
 class AdaptiveConcatPool2d(nn.Module):
@@ -83,14 +64,14 @@ class PandaNet(nn.Module):
                 self.base = inceptionresnetv2(pretrained=None)
             self.nc = self.base.last_linear.in_features
 
-        self.logit = nn.Sequential(GeM(),
+        self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
                                    Flatten(),
-                                   nn.BatchNorm1d(self.nc),
-                                   nn.Dropout(0.2),
-                                   nn.Linear(self.nc, 512),
+                                   nn.BatchNorm1d(2 * self.nc),
+                                   nn.Dropout(0.5),
+                                   nn.Linear(2 * self.nc, 512),
                                    Mish(),
                                    nn.BatchNorm1d(512),
-                                   nn.Dropout(0.2),
+                                   nn.Dropout(0.5),
                                    nn.Linear(512, 1))
 
     def forward(self, x):

@@ -4,7 +4,7 @@ model_list = ['se_resnext50_32x4d']
 fold_list = [0]
 
 batch_size = {'se_resnext50_32x4d': 5,
-              'se_resnext101_32x4d': 6,
+              'se_resnext101_32x4d': 3,
               'inceptionv4': 6,
               'inceptionresnetv2': 4}
 
