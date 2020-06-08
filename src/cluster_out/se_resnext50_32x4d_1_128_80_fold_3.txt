@@ -1,5 +1,0 @@
-available cuda: 2
-training started: Jun08_10-30-00
-epoch:00, train:0.974, valid:0.850, threshold: [0.70837899 1.41978876 1.85325325 2.58855039 3.88734865], score:0.572, best:0.572, date:Jun08_10-44-52
-epoch:01, train:0.799, valid:0.847, threshold: [0.81188593 1.09478528 1.46915851 2.38700352 4.05374032], score:0.648, best:0.648, date:Jun08_10-59-29
-epoch:02, train:0.788, valid:0.677, threshold: [0.78552208 1.09759705 1.61680816 2.17805109 5.51214706], score:0.653, best:0.653, date:Jun08_11-14-13

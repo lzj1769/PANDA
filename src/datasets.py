@@ -29,7 +29,6 @@ class PandaDataset(Dataset):
         image_id = self.df['image_id'].values[idx]
         file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
         wsi = skimage.io.MultiImage(file_path)[self.level]
-        wsi = utils.crop_white(wsi)
         images = utils.get_patches(wsi,
                                    patch_size=self.patch_size,
                                    num_patches=self.num_patches)
@@ -51,23 +50,7 @@ def get_transforms():
         RandomRotate90(p=0.5),
         Flip(p=0.5),
         Transpose(p=0.5),
-        OneOf([
-            IAAAdditiveGaussianNoise(),
-            GaussNoise(),
-        ], p=0.2),
-        OneOf([
-            MotionBlur(p=.2),
-            MedianBlur(blur_limit=3, p=0.1),
-            Blur(blur_limit=3, p=0.1),
-        ], p=0.2),
-        ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=0.2),
-        OneOf([
-            CLAHE(clip_limit=2),
-            IAASharpen(),
-            IAAEmboss(),
-            RandomBrightnessContrast(),
-        ], p=0.3),
-        HueSaturationValue(p=0.3),
+        ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=45, p=0.2)
     ])
 
 
