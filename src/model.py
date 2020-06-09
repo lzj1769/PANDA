@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 from inceptionv4 import inceptionv4
 from inceptionresnetv2 import inceptionresnetv2
-from senet import se_resnext50_32x4d, se_resnext101_32x4d
+from senet import se_resnext50_32x4d
 
 
 class AdaptiveConcatPool2d(nn.Module):
@@ -45,12 +45,6 @@ class PandaNet(nn.Module):
             else:
                 self.base = se_resnext50_32x4d(pretrained=None)
             self.nc = self.base.last_linear.in_features
-        elif arch == 'se_resnext101_32x4d':
-            if pretrained:
-                self.base = se_resnext101_32x4d()
-            else:
-                self.base = se_resnext101_32x4d(pretrained=None)
-            self.nc = self.base.last_linear.in_features
         elif arch == 'inceptionv4':
             if pretrained:
                 self.base = inceptionv4()
@@ -67,11 +61,11 @@ class PandaNet(nn.Module):
         self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
                                    Flatten(),
                                    nn.BatchNorm1d(2 * self.nc),
-                                   nn.Dropout(0.5),
+                                   nn.Dropout(0.2),
                                    nn.Linear(2 * self.nc, 512),
                                    Mish(),
                                    nn.BatchNorm1d(512),
-                                   nn.Dropout(0.5),
+                                   nn.Dropout(0.2),
                                    nn.Linear(512, 1))
 
     def forward(self, x):

@@ -3,8 +3,12 @@ import pandas as pd
 import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
-from albumentations import RandomRotate90, HorizontalFlip, VerticalFlip
-from albumentations import Compose
+from albumentations import (
+    CLAHE, RandomRotate90,
+    Transpose, ShiftScaleRotate, Blur, HueSaturationValue,
+    IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, MedianBlur, RandomBrightnessContrast,
+    IAASharpen, IAAEmboss, Flip, OneOf, Compose
+)
 
 import configure
 
@@ -39,8 +43,9 @@ class PandaDataset(Dataset):
 def get_transforms():
     return Compose([
         RandomRotate90(p=0.5),
-        VerticalFlip(p=0.5),
-        HorizontalFlip(p=0.5)
+        Flip(p=0.5),
+        Transpose(p=0.5),
+        ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=90, p=0.5),
     ])
 
 
