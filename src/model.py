@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from inceptionv4 import inceptionv4
 from inceptionresnetv2 import inceptionresnetv2
 from senet import se_resnext50_32x4d
+from mish import Mish
 
 
 class AdaptiveConcatPool2d(nn.Module):
@@ -24,14 +25,6 @@ class Flatten(nn.Module):
 
     def forward(self, x):
         return x.view(x.size(0), -1)
-
-
-class Mish(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, x):
-        return x * (torch.tanh(F.softplus(x)))
 
 
 class PandaNet(nn.Module):
