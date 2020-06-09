@@ -6,7 +6,7 @@ DATA_PATH = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment"
 
 # 5-fold split data
 SPLIT_FOLDER = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/split"
-PATCH_PATH = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/train_images_level_1_256_48"
+PATCH_PATH = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/train_images_level_1_128_64"
 
 # model weights configuration
 MODEL_PATH = "/hpcwork/rs619065/kaggle/prostate-cancer-grade-assessment/model"

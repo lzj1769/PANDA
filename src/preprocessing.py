@@ -1,24 +1,11 @@
 import numpy as np
 import pandas as pd
 import skimage.io
-import cv2
-import os
-from PIL import Image
 
 import configure
 
 
-def crop_white(image):
-    assert image.shape[2] == 3
-    assert image.dtype == np.uint8
-    ys, = (image.min((1, 2)) != 255).nonzero()
-    xs, = (image.min(0).min(1) != 255).nonzero()
-    if len(xs) == 0 or len(ys) == 0:
-        return image
-    return image[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
-
-
-def get_patches(image_id, patch_size=256, num_patches=32, level=1):
+def get_patches(image_id, patch_size=128, num_patches=64, level=1):
     """
     Description
     __________
@@ -32,7 +19,6 @@ def get_patches(image_id, patch_size=256, num_patches=32, level=1):
     # Get the shape of the input image
     file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
     wsi = skimage.io.MultiImage(file_path)[level]
-    wsi = crop_white(wsi)
     shape = wsi.shape
 
     # Find the padding such that the image divides evenly by the desired size

@@ -1,17 +1,12 @@
 import os
 import pandas as pd
 import torch
-import skimage.io
+import numpy as np
 from torch.utils.data import Dataset, DataLoader
-from albumentations import (
-    CLAHE, RandomRotate90,
-    Transpose, ShiftScaleRotate, Blur, HueSaturationValue,
-    IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, MedianBlur, RandomBrightnessContrast, IAAPiecewiseAffine,
-    IAASharpen, IAAEmboss, Flip, OneOf, Compose
-)
+from albumentations import RandomRotate90, HorizontalFlip, VerticalFlip
+from albumentations import Compose
 
 import configure
-import utils
 
 
 class PandaDataset(Dataset):
@@ -27,11 +22,7 @@ class PandaDataset(Dataset):
 
     def __getitem__(self, idx):
         image_id = self.df['image_id'].values[idx]
-        file_path = f'{configure.TRAIN_IMAGE_PATH}/{image_id}.tiff'
-        wsi = skimage.io.MultiImage(file_path)[self.level]
-        images = utils.get_patches(wsi,
-                                   patch_size=self.patch_size,
-                                   num_patches=self.num_patches)
+        images = np.load(f"{configure.PATCH_PATH}/{image_id}.npy")
 
         if self.transform:
             for i in range(images.shape[0]):
@@ -48,9 +39,8 @@ class PandaDataset(Dataset):
 def get_transforms():
     return Compose([
         RandomRotate90(p=0.5),
-        Flip(p=0.5),
-        Transpose(p=0.5),
-        ShiftScaleRotate(shift_limit=0, scale_limit=0, rotate_limit=45, p=0.2)
+        VerticalFlip(p=0.5),
+        HorizontalFlip(p=0.5)
     ])
 
 

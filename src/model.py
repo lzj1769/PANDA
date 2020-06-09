@@ -67,11 +67,11 @@ class PandaNet(nn.Module):
         self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
                                    Flatten(),
                                    nn.BatchNorm1d(2 * self.nc),
-                                   nn.Dropout(0.2),
+                                   nn.Dropout(0.5),
                                    nn.Linear(2 * self.nc, 512),
                                    Mish(),
                                    nn.BatchNorm1d(512),
-                                   nn.Dropout(0.2),
+                                   nn.Dropout(0.5),
                                    nn.Linear(512, 1))
 
     def forward(self, x):
