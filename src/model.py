@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
+from efficientnet import EfficientNet
 from inceptionv4 import inceptionv4
 from inceptionresnetv2 import inceptionresnetv2
 from senet import se_resnext50_32x4d
@@ -50,6 +50,13 @@ class PandaNet(nn.Module):
             else:
                 self.base = inceptionresnetv2(pretrained=None)
             self.nc = self.base.last_linear.in_features
+        elif 'efficientnet' in arch:
+            if pretrained:
+                self.base = EfficientNet.from_pretrained(model_name=arch)
+            else:
+                self.base = EfficientNet.from_name(model_name=arch)
+
+            self.nc = self.base._fc.in_features
 
         self.logit = nn.Sequential(AdaptiveConcatPool2d(1),
                                    Flatten(),

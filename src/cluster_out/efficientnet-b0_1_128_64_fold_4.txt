@@ -1,0 +1,12 @@
+available cuda: 2
+Loaded pretrained weights for efficientnet-b0
+training started: Jun10_11-31-42
+epoch:00, train:0.953, valid:0.557, threshold: [0.52056607 1.70055549 2.45310472 3.25896291 3.92288781], score:0.759, best:0.759, date:Jun10_11-37-39
+epoch:01, train:0.647, valid:0.496, threshold: [0.80782927 1.31018838 2.02386557 2.07644653 3.23236271], score:0.765, best:0.765, date:Jun10_11-43-28
+epoch:02, train:0.598, valid:0.430, threshold: [0.65105226 1.53562413 2.04077724 2.62535942 4.57147018], score:0.805, best:0.805, date:Jun10_11-49-18
+epoch:03, train:0.583, valid:0.427, threshold: [0.63933485 1.53788283 1.77697295 2.31301622 4.95189451], score:0.794, best:0.805, date:Jun10_11-55-09
+epoch:04, train:0.561, valid:0.447, threshold: [0.69136906 1.73403127 2.14969205 2.57193411 3.26974896], score:0.794, best:0.805, date:Jun10_12-00-57
+epoch:05, train:0.542, valid:0.451, threshold: [0.49238854 1.7575905  2.76498686 3.17488527 3.86891559], score:0.788, best:0.805, date:Jun10_12-06-50
+epoch:06, train:0.533, valid:0.387, threshold: [0.63572844 1.69719756 2.34302066 2.7518281  3.48412474], score:0.808, best:0.808, date:Jun10_12-12-42
+epoch:07, train:0.527, valid:0.423, threshold: [0.7103182  1.12850917 1.61207675 1.99831559 5.82405758], score:0.814, best:0.814, date:Jun10_12-18-32
+epoch:08, train:0.507, valid:0.398, threshold: [0.51487756 1.84611764 2.49732212 2.97103679 3.59497466], score:0.809, best:0.814, date:Jun10_12-24-24

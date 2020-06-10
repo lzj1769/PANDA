@@ -71,7 +71,7 @@ def get_dataloader(fold, batch_size, level, patch_size, num_patches, num_workers
                                   drop_last=True)
 
     valid_dataloader = DataLoader(dataset=valid_dataset,
-                                  batch_size=batch_size,
+                                  batch_size=4,
                                   num_workers=num_workers,
                                   pin_memory=True,
                                   shuffle=False)

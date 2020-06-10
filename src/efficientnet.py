@@ -479,7 +479,7 @@ class EfficientNet(nn.Module):
         for block in self._blocks:
             block.set_swish(memory_efficient)
 
-    def extract_features(self, inputs):
+    def features(self, inputs):
         """ Returns output of the final convolution layer """
 
         # Stem
