@@ -1,7 +1,7 @@
 import subprocess
 
-model_list = ['efficientnet-b1']
-fold_list = [0, 1, 2, 3, 4]
+model_list = ['efficientnet-b0']
+fold_list = [0]
 
 batch_size = {'se_resnext50_32x4d': 5,
               'inceptionv4': 8,
