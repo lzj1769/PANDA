@@ -1,0 +1,11 @@
+available cuda: 2
+Loaded pretrained weights for efficientnet-b1
+training started: Jun10_18-01-01
+epoch:00, train:0.963, valid:0.512, threshold: [0.68541292 1.52558011 2.31235609 2.85771168 3.74556035], score:0.727, best:0.727, date:Jun10_18-09-31
+epoch:01, train:0.672, valid:0.569, threshold: [1.02134965 1.34347696 1.59756831 1.82366586 2.46785008], score:0.769, best:0.769, date:Jun10_18-17-51
+epoch:02, train:0.643, valid:0.512, threshold: [0.81245863 1.24098164 1.61292458 2.23463298 5.84996716], score:0.787, best:0.787, date:Jun10_18-26-07
+epoch:03, train:0.624, valid:0.490, threshold: [0.7134847  1.5962145  2.08468734 2.64927646 3.4762121 ], score:0.736, best:0.787, date:Jun10_18-34-27
+epoch:04, train:0.607, valid:0.522, threshold: [0.65931066 1.25532555 1.45262771 2.13429901 5.59027025], score:0.767, best:0.787, date:Jun10_18-42-43
+epoch:05, train:0.589, valid:0.396, threshold: [0.56704381 1.63661499 2.45980474 3.14337974 3.86610895], score:0.807, best:0.807, date:Jun10_18-51-01
+epoch:06, train:0.561, valid:0.483, threshold: [0.54438995 1.78651309 2.16682732 2.48682342 4.8521478 ], score:0.757, best:0.807, date:Jun10_18-59-20
+epoch:07, train:0.577, valid:0.535, threshold: [0.50026931 1.74417104 1.95290002 2.40342696 4.97151516], score:0.758, best:0.807, date:Jun10_19-07-35

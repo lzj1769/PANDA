@@ -28,9 +28,9 @@ def parse_args():
                         help='use pre-trained model')
     parser.add_argument("--level", default=1, type=int,
                         help="which level to use, can only be 0, 1, 2")
-    parser.add_argument("--patch_size", default=256, type=int,
+    parser.add_argument("--patch_size", default=128, type=int,
                         help="size of patch, available are 128 and 256")
-    parser.add_argument("--num_patches", default=16, type=int,
+    parser.add_argument("--num_patches", default=64, type=int,
                         help="how many tiles for each image. Default: 12")
     parser.add_argument("--fold", type=int, default=0)
     parser.add_argument("--num_workers", default=36, type=int,
